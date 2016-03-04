@@ -1,0 +1,22 @@
+﻿<Application x:Class="Mocap.App" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:local="clr-namespace:Mocap" 
+             StartupUri="MainWindow.xaml" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             d1p1:Ignorable="d" 
+             xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Mocap.VM"
+             xmlns:view="clr-namespace:Mocap.View"
+             >
+    <Application.Resources>
+        <DataTemplate DataType="{x:Type vm:SensorVM}">
+            <view:SensorView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:BoneVM}">
+            <view:BoneView />
+        </DataTemplate>
+
+        <Style TargetType="{x:Type Rectangle}" />
+    </Application.Resources>
+</Application>

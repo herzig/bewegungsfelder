@@ -1,0 +1,39 @@
+﻿<Window x:Class="Mocap.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Mocap.View"
+        xmlns:vm="clr-namespace:Mocap.VM"
+        xmlns:helixex="clr-namespace:Mocap.Helix"
+        xmlns:helix="http://helix-toolkit.org/wpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <DockPanel>
+            <Expander Header="Sensors" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                <ListBox BorderThickness="0" ItemsSource="{Binding Sensors}" />
+            </Expander>
+
+            <Expander Header="Kinematic Structure" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                <local:KinematicEditor DataContext="{Binding Kinematic}"/>
+            </Expander>
+
+            <Expander Header="Details" DockPanel.Dock="Bottom" 
+                      ExpandDirection="Down" IsExpanded="True" Content="{Binding DetailsItem}">
+            </Expander>
+
+        </DockPanel>
+
+        <GridSplitter Width="5" ResizeBehavior="CurrentAndNext"/>
+
+        <helix:HelixViewport3D x:Name="viewport" Grid.Column="1">
+            <helix:DefaultLights></helix:DefaultLights>
+        </helix:HelixViewport3D>
+    </Grid>
+</Window>
