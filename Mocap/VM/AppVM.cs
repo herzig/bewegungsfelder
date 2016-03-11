@@ -59,6 +59,7 @@ namespace Mocap.VM
 
             RootVisual3D = new ModelVisual3D();
             RootVisual3D.Children.Add(Kinematic.Root.Visual);
+            RootVisual3D.Children.Add(Kinematic.Root.WorldVisual);
 
             refreshTimer = new DispatcherTimer(DispatcherPriority.Background);
             refreshTimer.Interval = TimeSpan.FromMilliseconds(20);

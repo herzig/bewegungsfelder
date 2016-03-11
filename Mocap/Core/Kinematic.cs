@@ -9,11 +9,10 @@ namespace Mocap.Core
 {
     public class Kinematic
     {
-        public Bone Root { get; } = new Bone { Name = "Root" };
+        public Bone Root { get; } = new Bone(parent: null) { Name = "Root" };
 
         public Kinematic()
         {
-            Root.Children.Add(new Bone { Offset = new Vector3D(1, 0, 0) });
         }
 
         public void ApplySensorData()

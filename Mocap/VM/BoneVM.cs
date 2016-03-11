@@ -13,8 +13,12 @@ namespace Mocap.VM
 {
     public class BoneVM : INotifyPropertyChanged
     {
+        private bool captureSensorData = false;
+
         // visuals to connect to child bones
         private Dictionary<BoneVM, LinesVisual3D> childLinkVisual = new Dictionary<BoneVM, LinesVisual3D>();
+
+        private CoordinateSystemVisual3D globalRotationVisual;
 
         public Bone Model { get; set; }
 
@@ -57,11 +61,19 @@ namespace Mocap.VM
         /// <summary>
         /// the local orientation of this bone
         /// </summary>
-        public Quaternion LocalRotation { get { return Model.LocalRotation; } set { Model.LocalRotation = value; } }
+        public Quaternion LocalRotation { get { return Model.JointRotation; } set { Model.JointRotation = value; } }
 
+        public Quaternion BaseSensorRotation { get; set; }
+
+        /// <summary>
+        /// this bones associated sensor
+        /// </summary>
         public SensorVM Sensor { get; set; }
 
+        public Quaternion SensorToLocalTransform { get; set; }
+
         public ModelVisual3D Visual { get; }
+        public ModelVisual3D WorldVisual { get; }
 
         public ObservableCollection<BoneVM> Children { get; }
 
@@ -84,6 +96,10 @@ namespace Mocap.VM
 
             Visual = new ModelVisual3D();
             Visual.Children.Add(new CoordinateSystemVisual3D());
+
+            globalRotationVisual = new CoordinateSystemVisual3D();
+            WorldVisual = new ModelVisual3D();
+            WorldVisual.Children.Add(globalRotationVisual);
 
             // create child bones
             Children = new ObservableCollection<BoneVM>();
@@ -108,14 +124,17 @@ namespace Mocap.VM
                     };
                     Visual.Children.Add(linkVisual);
                     childLinkVisual.Add(child, linkVisual);
+
+                    WorldVisual.Children.Add(child.WorldVisual);
                 }
             }
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
             {
-                foreach (BoneVM item in e.NewItems)
+                foreach (BoneVM child in e.NewItems)
                 {
-                    Visual.Children.Remove(item.Visual);
-                    Visual.Children.Remove(childLinkVisual[item]);
+                    Visual.Children.Remove(child.Visual);
+                    Visual.Children.Remove(childLinkVisual[child]);
+                    WorldVisual.Children.Remove(child.WorldVisual);
                 }
             }
         }
@@ -125,13 +144,72 @@ namespace Mocap.VM
             childLinkVisual[child].Points[1] = child.Offset.ToPoint3D();
         }
 
+        public Quaternion GetWorldRotation()
+        {
+            if (Parent == null) // root node: just return the local rotation
+                return LocalRotation;
+
+            return Parent.GetWorldRotation() * LocalRotation;
+        }
+
+        public void StartCapture()
+        {
+            if (Sensor == null)
+                return;
+
+            Quaternion sensorRotation = Sensor.LastValue.Orientation;
+
+            Quaternion parentsWorld = Quaternion.Identity;
+            if (Parent != null)
+                parentsWorld = Parent.GetWorldRotation();
+
+            Quaternion worldRotation = GetWorldRotation();
+
+            SensorToLocalTransform = sensorRotation.Inverted() * parentsWorld;
+
+            captureSensorData = true;
+        }
+
+        public void ApplySensorData()
+        {
+            if (Sensor == null)
+                return;
+
+            if (Parent != null)
+                LocalRotation = Sensor.CurrentOrientation * SensorToLocalTransform *  Parent.GetWorldRotation().Inverted();
+            else
+                LocalRotation = Sensor.CurrentOrientation * SensorToLocalTransform;
+        }
+
         public void Refresh()
         {
+            if (captureSensorData)
+            {
+                ApplySensorData();
+            }
+
+            Matrix3D worldTransform = Visual.GetTransform();
+            Matrix3D sensorOrientationMatrix = Matrix3D.Identity;
+
+            if (Sensor != null)
+                sensorOrientationMatrix.Rotate(SensorToLocalTransform * Sensor.CurrentOrientation);
+            sensorOrientationMatrix.Translate(new Vector3D(worldTransform.OffsetX, worldTransform.OffsetY, worldTransform.OffsetZ));
+
+            globalRotationVisual.Transform = new MatrixTransform3D(sensorOrientationMatrix);
+
             Visual.Transform = new MatrixTransform3D(Model.LocalTransform);
             foreach (var item in Children)
             {
                 item.Refresh();
             }
+        }
+
+        public void Traverse(Action<BoneVM> action)
+        {
+            action(this);
+
+            foreach (var item in Children)
+                item.Traverse(action);
         }
     }
 }

@@ -9,12 +9,13 @@ namespace Mocap.Core
 {
     public class Bone
     {
-        private Quaternion localRotation;
-        private Vector3D offset;
+        private Quaternion localRotation = Quaternion.Identity;
+        private Quaternion globalRotation = Quaternion.Identity;
+        private Vector3D offset = new Vector3D();
 
         public Matrix3D LocalTransform { get; private set; }
 
-        public Quaternion LocalRotation
+        public Quaternion JointRotation
         {
             get { return localRotation; }
             set
@@ -23,6 +24,8 @@ namespace Mocap.Core
                 UpdateLocalTransform();
             }
         }
+
+        public Quaternion GlobalRotation { get { return globalRotation; } set { globalRotation = value; } }
 
         public Vector3D Offset
         {
@@ -34,16 +37,17 @@ namespace Mocap.Core
             }
         }
 
-        //public Quaternion GlobalRotation { get; set; }
-
         public string Name { get; set; }
 
         public Sensor Sensor { get; set; }
 
+        public Bone Parent { get; }
+
         public List<Bone> Children { get; } = new List<Bone>();
 
-        public Bone(string name = "bone", Vector3D offset = default(Vector3D))
+        public Bone(Bone parent, string name = "bone", Vector3D offset = default(Vector3D))
         {
+            Parent = parent;
             Name = name;
             Offset = offset;
         }
@@ -51,7 +55,7 @@ namespace Mocap.Core
         private void UpdateLocalTransform()
         {
             var mat = Matrix3D.Identity;
-            mat.Rotate(LocalRotation);
+            mat.Rotate(JointRotation);
             mat.Translate(Offset);
 
             LocalTransform = mat;

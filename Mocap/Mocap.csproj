@@ -84,6 +84,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Core\Kinematic.cs" />
+    <Compile Include="Core\QuaternionExtensions.cs" />
     <Compile Include="Helix\ItemsVisual3D.cs" />
     <Compile Include="Helix\DataTemplate3D.cs" />
     <Compile Include="View\BoneView.xaml.cs">

@@ -16,6 +16,10 @@
         </Grid.ColumnDefinitions>
 
         <DockPanel>
+            <Expander Header="Mocap Control" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                <Button Click="OnCaptureClick">Capture!</Button> 
+            </Expander>
+            
             <Expander Header="Sensors" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
                 <ListBox BorderThickness="0" ItemsSource="{Binding Sensors}" />
             </Expander>

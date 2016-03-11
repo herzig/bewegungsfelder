@@ -104,9 +104,10 @@ namespace Mocap.VM
             if (SelectedItem == null)
                 throw new InvalidOperationException("No bone selected!");
 
-            var model = new Bone(offset: new Vector3D(1,0,0));
-            var vm = new BoneVM(model, SelectedItem, sensors);
+            var model = new Bone(parent: SelectedItem.Model, offset: new Vector3D(1,0,0));
+            var vm = new BoneVM(model, parent: SelectedItem, registeredSensors: sensors);
             SelectedItem.Children.Add(vm);
+            SelectedItem.Model.Children.Add(model);
         }
 
         /// <summary>
@@ -115,6 +116,12 @@ namespace Mocap.VM
         private bool CanAddBone()
         {
             return SelectedItem != null;
+        }
+
+        public void StartCapture()
+        {
+            foreach (var item in Roots)
+                item.Traverse((bone) => bone.StartCapture());
         }
 
         /// <summary>
