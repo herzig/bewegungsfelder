@@ -39,6 +39,9 @@ namespace Mocap.VM
             this.Model = model;
         }
 
+        /// <summary>
+        /// raise the property changed event to cause view updates
+        /// </summary>
         public void RaisePropertyChanged()
         {
             // empty property changed event is interpreted as a change on all properties

@@ -22,24 +22,15 @@ namespace Mocap
     /// </summary>
     public partial class MainWindow : Window
     {
-        private AppVM appViewModel;
+        private AppVM ViewModel { get { return (AppVM)DataContext; } }
 
         public MainWindow()
         {
             InitializeComponent();
 
-            appViewModel = new AppVM(new Core.DataCollector(), new Core.Kinematic());
+            viewport.Children.Add(ViewModel.RootVisual3D);
 
-            appViewModel.StartServer();
-
-            DataContext = appViewModel;
-
-            viewport.Children.Add(appViewModel.RootVisual3D);
-        }
-
-        private void OnCaptureClick(object sender, RoutedEventArgs e)
-        {
-            appViewModel.Kinematic.StartCapture();
+            ViewModel.StartServer();
         }
     }
 }

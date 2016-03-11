@@ -17,6 +17,8 @@
             <view:BoneView />
         </DataTemplate>
 
+        <vm:AppVM x:Key="AppVM"/>
+
         <Style TargetType="{x:Type Rectangle}" />
     </Application.Resources>
 </Application>

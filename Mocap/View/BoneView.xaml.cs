@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mocap.VM;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,19 @@ namespace Mocap.View
         public BoneView()
         {
             InitializeComponent();
+        }
+
+        private void cb_sensors_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var appvm = AppVM.GetCurrent();
+
+            SensorVM sensor = e.AddedItems[0] as SensorVM; // we assume comboBox so theres always a single selected item
+            BoneVM bone = (BoneVM)DataContext;
+            var arg = new Tuple<BoneVM, SensorVM>(bone, sensor);
+            if (appvm.AssignSensorToBoneCommand.CanExecute(arg))
+            {
+                appvm.AssignSensorToBoneCommand.Execute(arg);
+            };
         }
     }
 }

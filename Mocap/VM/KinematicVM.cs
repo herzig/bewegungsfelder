@@ -22,11 +22,6 @@ namespace Mocap.VM
         public Kinematic Model { get; }
 
         /// <summary>
-        /// all currently registered sensors 
-        /// </summary>
-        public ReadOnlyObservableCollection<SensorVM> sensors;
-
-        /// <summary>
         /// roots collection is always just a single entry, mainly used to be able to bind to collection views
         /// </summary>
         public BoneVM[] Roots { get; } = new BoneVM[1];
@@ -76,14 +71,14 @@ namespace Mocap.VM
         /// </summary>
         /// <param name="model">the underlying model</param>
         /// <param name="sensors">collection of registered sensors.</param>
-        public KinematicVM(Kinematic model, ReadOnlyObservableCollection<SensorVM> sensors)
+        public KinematicVM(Kinematic model)
         {
             Model = model;
-            this.sensors = sensors;
 
-            // creates bone view model tree
-            Roots[0] = new BoneVM(model.Root, null, sensors);
+            // create the bone ViewModel tree
+            Roots[0] = new BoneVM(model.Root, null);
 
+            // setup commands
             AddBoneCommand = new RelayCommand(AddBone, CanAddBone);
             ChangeSelectedCommand = new RelayCommand<RoutedPropertyChangedEventArgs<object>>(ChangeSelected);
         }
@@ -105,7 +100,7 @@ namespace Mocap.VM
                 throw new InvalidOperationException("No bone selected!");
 
             var model = new Bone(parent: SelectedItem.Model, offset: new Vector3D(1,0,0));
-            var vm = new BoneVM(model, parent: SelectedItem, registeredSensors: sensors);
+            var vm = new BoneVM(model, parent: SelectedItem);
             SelectedItem.Children.Add(vm);
             SelectedItem.Model.Children.Add(model);
         }
@@ -116,12 +111,6 @@ namespace Mocap.VM
         private bool CanAddBone()
         {
             return SelectedItem != null;
-        }
-
-        public void StartCapture()
-        {
-            foreach (var item in Roots)
-                item.Traverse((bone) => bone.StartCapture());
         }
 
         /// <summary>

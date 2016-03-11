@@ -18,7 +18,7 @@ namespace Mocap.Core
 
         /// <summary>
         /// the last sensor value received.
-        /// returns a default SensorValue if no data recorded yet
+        /// returns a default SensorValue if no data is recorded yet
         /// </summary>
         public SensorValue LastValue
         {

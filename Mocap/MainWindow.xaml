@@ -8,7 +8,8 @@
         xmlns:helixex="clr-namespace:Mocap.Helix"
         xmlns:helix="http://helix-toolkit.org/wpf"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525"
+        DataContext="{StaticResource AppVM}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -17,9 +18,12 @@
 
         <DockPanel>
             <Expander Header="Mocap Control" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
-                <Button Click="OnCaptureClick">Capture!</Button> 
+                <StackPanel>
+                    <Button Command="{Binding StartCaptureCommand}">Start Capture</Button>
+                    <Button Command="{Binding StopCaptureCommand}">Stop Capture</Button>
+                </StackPanel>
             </Expander>
-            
+
             <Expander Header="Sensors" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
                 <ListBox BorderThickness="0" ItemsSource="{Binding Sensors}" />
             </Expander>

@@ -11,13 +11,17 @@ namespace Mocap.Core
     {
         public Bone Root { get; } = new Bone(parent: null) { Name = "Root" };
 
-        public Kinematic()
-        {
-        }
+        public Kinematic() { }
 
-        public void ApplySensorData()
+        public void ApplyRotations(Dictionary<Bone, Quaternion> jointRotations)
         {
-            Root.ApplySensorData(Matrix3D.Identity);
+            Root.Traverse((bone, worldRotation) =>
+            {
+                if (jointRotations.ContainsKey(bone))
+                {
+                    bone.JointRotation = worldRotation.Inverted() * jointRotations[bone];
+                }
+            }, Quaternion.Identity);
         }
     }
 }
