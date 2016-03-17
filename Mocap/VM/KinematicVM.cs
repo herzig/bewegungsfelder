@@ -41,11 +41,20 @@ namespace Mocap.VM
             {
                 if (selectedItem != value)
                 {
+                    if (selectedItem != null)
+                    {
+                        selectedItem.IsSelected = false;
+                    }
+
                     selectedItem = value;
+
+                    if (selectedItem != null)
+                    {
+                        selectedItem.IsSelected = true;
+                    }
 
                     // HACK: this updates all commands. maybe we could be more selective
                     CommandManager.InvalidateRequerySuggested();
-
                     SetDetailItemRequested?.Invoke(selectedItem);
                 }
             }
@@ -55,6 +64,11 @@ namespace Mocap.VM
         /// adds a new child to the currently selected node
         /// </summary>
         public ICommand AddBoneCommand { get; }
+
+        /// <summary>
+        /// remove the currently selected bone and all its children.
+        /// </summary>
+        public ICommand RemoveBoneCommand { get; }
 
         /// <summary>
         /// sets the currently selected item
@@ -80,6 +94,7 @@ namespace Mocap.VM
 
             // setup commands
             AddBoneCommand = new RelayCommand(AddBone, CanAddBone);
+            RemoveBoneCommand = new RelayCommand(RemoveBone, CanRemoveBone);
             ChangeSelectedCommand = new RelayCommand<RoutedPropertyChangedEventArgs<object>>(ChangeSelected);
         }
 
@@ -111,6 +126,27 @@ namespace Mocap.VM
         private bool CanAddBone()
         {
             return SelectedItem != null;
+        }
+
+        /// <summary>
+        /// remove the currently selected bone
+        /// </summary>
+        private void RemoveBone()
+        {
+            if (SelectedItem == null)
+                throw new InvalidOperationException("No bone selected!");
+            if (SelectedItem.Parent == null)
+                throw new InvalidOperationException("Can't remove root node");
+
+            SelectedItem.Parent.Children.Remove(SelectedItem);
+        }
+
+        /// <summary>
+        /// checks if the RemoveBone command can be executed
+        /// </summary>
+        private bool CanRemoveBone()
+        {
+            return SelectedItem != null && SelectedItem.Parent != null;
         }
 
         /// <summary>

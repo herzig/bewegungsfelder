@@ -12,6 +12,8 @@ namespace Mocap.Core
         private Dictionary<Bone, Sensor> boneSensorsMap = new Dictionary<Bone, Sensor>();
         private Dictionary<Bone, SensorBoneLink> links = new Dictionary<Bone, SensorBoneLink>();
 
+        public IEnumerable<SensorBoneLink> Links { get { return links.Values; } }
+
         public void SetLink(Bone bone, Sensor sensor)
         {
             if (boneSensorsMap.ContainsKey(bone))
@@ -37,10 +39,21 @@ namespace Mocap.Core
             var result = new Dictionary<Bone, Quaternion>();
             foreach (var link in links.Values)
             {
-                result.Add(link.Bone, link.Sensor.LastValue.Orientation);
+                result.Add(link.Bone, link.GetCalibratedOrientation());
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// clear all links
+        /// </summary>
+        public void Clear()
+        {
+            foreach (var item in links.Keys)
+            {
+                RemoveLink(item);
+            }
         }
     }
 

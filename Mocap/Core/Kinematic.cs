@@ -9,9 +9,15 @@ namespace Mocap.Core
 {
     public class Kinematic
     {
-        public Bone Root { get; } = new Bone(parent: null) { Name = "Root" };
+        public Bone Root { get; }
 
-        public Kinematic() { }
+        public Kinematic(Bone root = null)
+        {
+            if (root == null)
+                Root = new Bone(parent: null) { Name = "Root" };
+            else
+                Root = root;
+        }
 
         public void ApplyRotations(Dictionary<Bone, Quaternion> jointRotations)
         {

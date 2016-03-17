@@ -12,10 +12,15 @@
     <DockPanel LastChildFill="True">
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Height="25">
             <Button Command="{Binding AddBoneCommand}">Add</Button>
-            <Button>Remove</Button>
+            <Button Command="{Binding RemoveBoneCommand}">Remove</Button>
         </StackPanel>
         
         <TreeView ItemsSource="{Binding Roots}" BorderThickness="0">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="{x:Type TreeViewItem}"> <!-- auto expand all items-->
+                    <Setter Property="IsExpanded" Value="True"/>
+                </Style>
+            </TreeView.ItemContainerStyle>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectedItemChanged">
                     <mvl:EventToCommand Command="{Binding ChangeSelectedCommand}" PassEventArgsToCommand="True"/>

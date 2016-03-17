@@ -7,41 +7,67 @@
         xmlns:vm="clr-namespace:Mocap.VM"
         xmlns:helixex="clr-namespace:Mocap.Helix"
         xmlns:helix="http://helix-toolkit.org/wpf"
+        xmlns:wpftoolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525"
+        Title="MainWindow" Height="600" Width="800"
         DataContext="{StaticResource AppVM}">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <DockPanel LastChildFill="True">
+        <Menu DockPanel.Dock="Top" IsMainMenu="True">
+            <MenuItem Header="_File">
+                <MenuItem Header="Load _BVH" Click="OnLoadBVHClick"/>
+                <Separator/>
+                <MenuItem Header="Exit" Click="OnExitClick"/>
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <DockPanel>
-            <Expander Header="Mocap Control" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
-                <StackPanel>
-                    <Button Command="{Binding StartCaptureCommand}">Start Capture</Button>
-                    <Button Command="{Binding StopCaptureCommand}">Stop Capture</Button>
-                </StackPanel>
-            </Expander>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <DockPanel>
+                    <Expander Header="Mocap Control" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                        <StackPanel>
+                            <Button Command="{Binding StartCaptureCommand}">Start Capture</Button>
+                            <Button Command="{Binding StopCaptureCommand}">Stop Capture</Button>
+                            <Separator/>
+                            <Button Command="{Binding SetBaseRotationCommand}">Set Base Rotations</Button>
+                        </StackPanel>
+                    </Expander>
 
-            <Expander Header="Sensors" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
-                <ListBox BorderThickness="0" ItemsSource="{Binding Sensors}" />
-            </Expander>
+                    <Expander Header="Sensors" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                        <ListBox BorderThickness="0" ItemsSource="{Binding Sensors}" />
+                    </Expander>
 
-            <Expander Header="Kinematic Structure" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
-                <local:KinematicEditor DataContext="{Binding Kinematic}"/>
-            </Expander>
+                    <Expander Header="Kinematic Structure" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                        <local:KinematicEditor DataContext="{Binding Kinematic}"/>
+                    </Expander>
 
-            <Expander Header="Details" DockPanel.Dock="Bottom" 
+                    <Expander Header="Details" DockPanel.Dock="Bottom" 
                       ExpandDirection="Down" IsExpanded="True" Content="{Binding DetailsItem}">
-            </Expander>
+                    </Expander>
 
-        </DockPanel>
+                </DockPanel>
+            </ScrollViewer>
 
-        <GridSplitter Width="5" ResizeBehavior="CurrentAndNext"/>
+            <GridSplitter Width="5" ResizeBehavior="CurrentAndNext"/>
 
-        <helix:HelixViewport3D x:Name="viewport" Grid.Column="1">
-            <helix:DefaultLights></helix:DefaultLights>
-        </helix:HelixViewport3D>
-    </Grid>
+            <DockPanel Grid.Column="1" LastChildFill="True">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                    <wpftoolkit:DropDownButton Height="32">
+                        <Image Source="{StaticResource EyeIcon}"/>
+
+                        <wpftoolkit:DropDownButton.DropDownContent>
+                            <local:DisplaySettingsView />
+                        </wpftoolkit:DropDownButton.DropDownContent>
+                    </wpftoolkit:DropDownButton>
+                </StackPanel>
+                <helix:HelixViewport3D x:Name="viewport"
+                               CameraRotationMode="Trackball">
+                    <helix:DefaultLights></helix:DefaultLights>
+                </helix:HelixViewport3D>
+            </DockPanel>
+        </Grid>
+    </DockPanel>
 </Window>

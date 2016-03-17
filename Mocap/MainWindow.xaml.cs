@@ -1,4 +1,5 @@
-﻿using Mocap.VM;
+﻿using Microsoft.Win32;
+using Mocap.VM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,22 @@ namespace Mocap
             viewport.Children.Add(ViewModel.RootVisual3D);
 
             ViewModel.StartServer();
+        }
+
+        private void OnExitClick(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void OnLoadBVHClick(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Multiselect = false;
+
+            if (fileDialog.ShowDialog(this) == true)
+            {
+                ViewModel.LoadBVHFileCommand.Execute(fileDialog.FileName);
+            }
         }
     }
 }

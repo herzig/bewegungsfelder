@@ -20,5 +20,7 @@
         <vm:AppVM x:Key="AppVM"/>
 
         <Style TargetType="{x:Type Rectangle}" />
+
+        <BitmapImage x:Key="EyeIcon" UriSource="Icons/eye.png" />
     </Application.Resources>
 </Application>

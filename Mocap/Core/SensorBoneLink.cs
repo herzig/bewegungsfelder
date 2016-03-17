@@ -13,10 +13,22 @@ namespace Mocap.Core
 
         public Sensor Sensor { get; }
 
+        public Quaternion BaseRotation { get; private set; }
+
         public SensorBoneLink(Bone bone, Sensor sensor)
         {
             Bone = bone;
             Sensor = sensor;
+        }
+
+        public Quaternion GetCalibratedOrientation()
+        {
+            return Sensor.LastValue.Orientation * BaseRotation;
+        }
+
+        public void SetBaseRotation()
+        {
+            BaseRotation = Sensor.LastValue.Orientation.Inverted();
         }
     }
 }

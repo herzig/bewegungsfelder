@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight.CommandWpf;
+using Mocap.BVH;
 using Mocap.Core;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,8 @@ namespace Mocap.VM
         private ObservableCollection<SensorVM> sensors;
         private DataCollector dataCollector;
 
+        private KinematicVM kinematic;
+
         /// <summary>
         /// collection of all registered sensors
         /// </summary>
@@ -40,9 +43,36 @@ namespace Mocap.VM
 
         public SensorBoneMap SensorBoneMap = new SensorBoneMap();
 
-        public KinematicVM Kinematic { get; }
+        public KinematicVM Kinematic
+        {
+            get { return kinematic; }
+            set
+            {
+                if (kinematic != value)
+                {
+                    if (kinematic != null)
+                    {
+                        RootVisual3D.Children.Remove(kinematic.Root.Visual);
+                        RootVisual3D.Children.Remove(kinematic.Root.WorldVisual);
+                    }
 
-        public ModelVisual3D RootVisual3D { get; }
+                    kinematic = value;
+                    kinematic.SetDetailItemRequested += OnSetDetailItemRequested;
+
+                    SensorBoneMap.Clear();
+
+                    if (kinematic != null)
+                    {
+                        RootVisual3D.Children.Add(kinematic.Root.Visual);
+                        RootVisual3D.Children.Add(kinematic.Root.WorldVisual);
+                    }
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Kinematic)));
+                }
+            }
+        }
+
+        public ModelVisual3D RootVisual3D { get; } = new ModelVisual3D();
 
         public object DetailsItem
         {
@@ -57,11 +87,15 @@ namespace Mocap.VM
             }
         }
 
+        public ICommand LoadBVHFileCommand { get; }
+
         public ICommand AssignSensorToBoneCommand { get; }
 
         public ICommand StartCaptureCommand { get; }
 
         public ICommand StopCaptureCommand { get; }
+
+        public ICommand SetBaseRotationCommand { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -78,23 +112,32 @@ namespace Mocap.VM
 
             // setup kinematic chain
             Kinematic = new KinematicVM(new Kinematic());
-            Kinematic.SetDetailItemRequested += OnSetDetailItemRequested;
-
-            // setup 3d visuals
-            RootVisual3D = new ModelVisual3D();
-            RootVisual3D.Children.Add(Kinematic.Root.Visual);
-            RootVisual3D.Children.Add(Kinematic.Root.WorldVisual);
 
             // setup commands
+            LoadBVHFileCommand = new RelayCommand<string>(LoadBVHFile);
             AssignSensorToBoneCommand = new RelayCommand<Tuple<BoneVM, SensorVM>>(AssignSensorToBone);
             StartCaptureCommand = new RelayCommand(StartCapture, CanStartCapture);
             StopCaptureCommand = new RelayCommand(StopCapture, CanStopCapture);
+            SetBaseRotationCommand = new RelayCommand(SetBaseRotation);
 
             // ui update timer
             refreshTimer = new DispatcherTimer(DispatcherPriority.Background);
             refreshTimer.Interval = TimeSpan.FromMilliseconds(20);
             refreshTimer.Start();
             refreshTimer.Tick += OnRefreshTick;
+        }
+
+        private void LoadBVHFile(string file)
+        {
+            if (StopCaptureCommand.CanExecute(null))
+            {
+                StopCaptureCommand.Execute(null);
+            }
+
+            BVHNode bvhroot = BVHReader.ReadBvhHierarchy(file);
+            Bone newRoot = BVHConverter.ToBones(bvhroot, null);
+
+            Kinematic = new KinematicVM(new Core.Kinematic(newRoot));
         }
 
         private void StartCapture()
@@ -189,6 +232,17 @@ namespace Mocap.VM
         private void OnSetDetailItemRequested(object item)
         {
             DetailsItem = item;
+        }
+
+        /// <summary>
+        /// updates the base rotation for all sensor-bone links
+        /// </summary>
+        private void SetBaseRotation()
+        {
+            foreach (var item in SensorBoneMap.Links)
+            {
+                item.SetBaseRotation();
+            }
         }
 
         /// <summary>
