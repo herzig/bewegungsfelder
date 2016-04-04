@@ -13,7 +13,7 @@ namespace Mocap.BVH
         /// <summary>
         /// reads BVH hierarchical data from a BVH file
         /// </summary>
-        public static BVHNode ReadBvhHierarchy(string file)
+        public static BVHNode ReadBvhHierarchy(string file, out Dictionary<BVHNode, List<Quaternion>> motionData)
         {
             using (var reader = new StreamReader(file))
             {
@@ -22,10 +22,93 @@ namespace Mocap.BVH
                     throw new FileFormatException("File has to start with HIERARCHY keyword");
 
                 var root = ReadNode(reader, reader.ReadLine(), 0);
+                motionData = ReadMotionData(reader, root);
 
                 return root;
             }
         }
+
+        public static Dictionary<BVHNode, List<Quaternion>> ReadMotionData(StreamReader reader, BVHNode root)
+        {
+            var line = reader.ReadLine().ToLower().Trim();
+            if (line != "motion")
+                throw new FileFormatException("Expected MOTION keyword");
+
+            // read number of frames
+            line = reader.ReadLine().ToLower().Trim();
+            var tokens = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+            int numFrames;
+            if (!int.TryParse(tokens[1], out numFrames))
+            {
+                throw new FileFormatException("Could not read number of frames");
+            }
+
+            //read frame time
+            line = reader.ReadLine().ToLower().Trim();
+            tokens = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+            double frameTime;
+            if (!double.TryParse(tokens[2], out frameTime))
+            {
+                throw new FileFormatException("Could not read frame time");
+            }
+
+            Dictionary<BVHNode, List<Quaternion>> motionData = new Dictionary<BVHNode, List<Quaternion>>();
+            while (!reader.EndOfStream)
+            {
+                line = reader.ReadLine().ToLower().Trim();
+                if (String.IsNullOrWhiteSpace(line))
+                    continue;
+
+                double[] frameData = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries).Select(t => double.Parse(t)).ToArray();
+
+                int offset = 0;
+                ReadFrameData(root, motionData, frameData, ref offset);
+            }
+            return motionData;
+        }
+
+        private static void ReadFrameData(BVHNode node, Dictionary<BVHNode, List<Quaternion>> motionData, double[] values, ref int offset)
+        {
+            if (node.Type == BVHNodeTypes.EndSite)
+                return;
+
+            double[] nodevalues = new double[node.Channels.Length];
+            Array.Copy(values, offset, nodevalues, 0, node.Channels.Length);
+            offset += node.Channels.Length;
+
+            if (!motionData.ContainsKey(node))
+            {
+                motionData.Add(node, new List<Quaternion>());
+            }
+
+            int ignoredOffset = 0;
+            if (node.Channels[0] == BVHChannels.Xposition)
+                ignoredOffset += 3;
+
+            if (node.Channels[ignoredOffset] != BVHChannels.Zrotation
+                || node.Channels[ignoredOffset + 1] != BVHChannels.Xrotation
+                || node.Channels[ignoredOffset + 2] != BVHChannels.Yrotation)
+            {
+                throw new FileFormatException("Joint Channels have to be in ZXY order");
+            }
+
+            // convert rotation to quaternion
+            var qz = new Quaternion(new Vector3D(0, 0, 1), nodevalues[ignoredOffset]);
+            var qx = new Quaternion(new Vector3D(1, 0, 0), nodevalues[ignoredOffset + 1]);
+            var qy = new Quaternion(new Vector3D(0, 1, 0), nodevalues[ignoredOffset + 2]);
+
+            Quaternion quat = qz * qx * qy;
+
+            motionData[node].Add(quat);
+
+            foreach (var item in node.Children)
+            {
+                ReadFrameData(item, motionData, values, ref offset);
+            }
+        }
+
 
         /// <summary>
         /// reads a bvh node from a given bvh reader

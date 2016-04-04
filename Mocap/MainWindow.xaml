@@ -5,14 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Mocap.View"
         xmlns:vm="clr-namespace:Mocap.VM"
-        xmlns:helixex="clr-namespace:Mocap.Helix"
         xmlns:helix="http://helix-toolkit.org/wpf"
         xmlns:wpftoolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800"
         DataContext="{StaticResource AppVM}">
     <DockPanel LastChildFill="True">
-        <Menu DockPanel.Dock="Top" IsMainMenu="True">
+        <Menu DockPanel.Dock="Top" IsMainMenu="True" Height="24">
             <MenuItem Header="_File">
                 <MenuItem Header="Load _BVH" Click="OnLoadBVHClick"/>
                 <Separator/>
@@ -21,7 +20,7 @@
         </Menu>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -35,14 +34,17 @@
                             <Button Command="{Binding SetBaseRotationCommand}">Set Base Rotations</Button>
                         </StackPanel>
                     </Expander>
+                    <Separator DockPanel.Dock="Top"/>
 
                     <Expander Header="Sensors" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
-                        <ListBox BorderThickness="0" ItemsSource="{Binding Sensors}" />
+                        <ListBox BorderThickness="0" ItemsSource="{Binding Sensors}" MinHeight="90"/>
                     </Expander>
+                    <Separator DockPanel.Dock="Top"/>
 
                     <Expander Header="Kinematic Structure" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
-                        <local:KinematicEditor DataContext="{Binding Kinematic}"/>
+                        <local:KinematicEditor DataContext="{Binding BaseKinematic}" MinHeight="90"/>
                     </Expander>
+                    <Separator DockPanel.Dock="Top"/>
 
                     <Expander Header="Details" DockPanel.Dock="Bottom" 
                       ExpandDirection="Down" IsExpanded="True" Content="{Binding DetailsItem}">
@@ -54,15 +56,17 @@
             <GridSplitter Width="5" ResizeBehavior="CurrentAndNext"/>
 
             <DockPanel Grid.Column="1" LastChildFill="True">
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                    <wpftoolkit:DropDownButton Height="32">
-                        <Image Source="{StaticResource EyeIcon}"/>
-
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="26">
+                    <wpftoolkit:DropDownButton HorizontalAlignment="Right">
                         <wpftoolkit:DropDownButton.DropDownContent>
-                            <local:DisplaySettingsView />
+                            <local:DisplaySettingsView MinWidth="120" MinHeight="100"/>
                         </wpftoolkit:DropDownButton.DropDownContent>
+                        <Image Source="{StaticResource SettingsIcon}"/>
                     </wpftoolkit:DropDownButton>
                 </StackPanel>
+
+                <local:PlayerView DockPanel.Dock="Bottom" DataContext="{Binding Animator}"/>
+
                 <helix:HelixViewport3D x:Name="viewport"
                                CameraRotationMode="Trackball">
                     <helix:DefaultLights></helix:DefaultLights>

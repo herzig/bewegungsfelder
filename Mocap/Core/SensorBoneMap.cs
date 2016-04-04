@@ -9,32 +9,39 @@ namespace Mocap.Core
 {
     public class SensorBoneMap
     {
-        private Dictionary<Bone, Sensor> boneSensorsMap = new Dictionary<Bone, Sensor>();
         private Dictionary<Bone, SensorBoneLink> links = new Dictionary<Bone, SensorBoneLink>();
 
         public IEnumerable<SensorBoneLink> Links { get { return links.Values; } }
 
-        public void SetLink(Bone bone, Sensor sensor)
+        public event Action<SensorBoneLink> LinkAdded;
+
+        public event Action<SensorBoneLink> LinkRemoved;
+
+        public void CreateLink(Bone bone, Sensor sensor)
         {
-            if (boneSensorsMap.ContainsKey(bone))
+            if (links.ContainsKey(bone))
             {
-                boneSensorsMap.Remove(bone);
+                var removedLink = links[bone];
                 links.Remove(bone);
+                LinkRemoved?.Invoke(removedLink);
             }
 
-            links.Add(bone, new SensorBoneLink(bone, sensor));
-            boneSensorsMap.Add(bone, sensor);
+            var link = new SensorBoneLink(bone, sensor);
+            links.Add(bone, link);
+            LinkAdded?.Invoke(link);
         }
 
         public void RemoveLink(Bone bone)
         {
-            if (boneSensorsMap.ContainsKey(bone))
+            if (links.ContainsKey(bone))
             {
+                var link = links[bone];
                 links.Remove(bone);
+                LinkRemoved?.Invoke(link);
             }
         }
 
-        public Dictionary<Bone, Quaternion> GetSensorOrientations()
+        public Dictionary<Bone, Quaternion> GetCalibratedSensorOrientations()
         {
             var result = new Dictionary<Bone, Quaternion>();
             foreach (var link in links.Values)

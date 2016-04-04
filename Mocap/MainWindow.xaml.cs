@@ -34,6 +34,7 @@ namespace Mocap
             ViewModel.StartServer();
         }
 
+
         private void OnExitClick(object sender, RoutedEventArgs e)
         {
             Close();

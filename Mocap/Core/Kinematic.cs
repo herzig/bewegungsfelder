@@ -19,7 +19,7 @@ namespace Mocap.Core
                 Root = root;
         }
 
-        public void ApplyRotations(Dictionary<Bone, Quaternion> jointRotations)
+        public void ApplyWorldRotations(Dictionary<Bone, Quaternion> jointRotations)
         {
             Root.Traverse((bone, worldRotation) =>
             {
@@ -28,6 +28,17 @@ namespace Mocap.Core
                     bone.JointRotation = worldRotation.Inverted() * jointRotations[bone];
                 }
             }, Quaternion.Identity);
+        }
+
+        public void ApplyLocalRotation(Dictionary<Bone,Quaternion> jointRotations)
+        {
+            Root.Traverse((bone) =>
+            {
+                if (jointRotations.ContainsKey(bone))
+                {
+                    bone.JointRotation = jointRotations[bone];
+                }
+            });
         }
     }
 }

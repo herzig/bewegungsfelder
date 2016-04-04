@@ -12,6 +12,40 @@ namespace Mocap.Core
         private Quaternion jointRotation = Quaternion.Identity;
         private Vector3D offset = new Vector3D();
 
+        private Quaternion baseRotation = Quaternion.Identity;
+        private Vector3D baseOffset = new Vector3D();
+
+        /// <summary>
+        /// combined offset and joint rotation in the base position
+        /// </summary>>
+        public Matrix3D BaseLocalTransform { get; private set; }
+
+        /// <summary>
+        /// local joint rotation in the base position
+        /// </summary>
+        public Quaternion BaseJointRotation
+        {
+            get { return baseRotation; }
+            set
+            {
+                baseRotation = value;
+                UpdateLocalTransform();
+            }
+        }
+
+        /// <summary>
+        /// offset to the parent joint in the base position
+        /// </summary>
+        public Vector3D BaseOffset
+        {
+            get { return baseOffset; }
+            set
+            {
+                baseOffset = value;
+                UpdateLocalTransform();
+            }
+        }
+
         /// <summary>
         /// combined offset and joint rotation matrix
         /// </summary>
@@ -58,6 +92,12 @@ namespace Mocap.Core
         /// </summary>
         public List<Bone> Children { get; } = new List<Bone>();
 
+        /// <summary>
+        /// initializes a new instance.
+        /// </summary>
+        /// <param name="parent">the paren bone if any</param>
+        /// <param name="name">a name for this bone</param>
+        /// <param name="offset">the offset to the parent bone</param>
         public Bone(Bone parent, string name = "bone", Vector3D offset = default(Vector3D))
         {
             Parent = parent;
@@ -75,6 +115,51 @@ namespace Mocap.Core
             mat.Translate(Offset);
 
             LocalTransform = mat;
+        }
+
+        /// <summary>
+        /// update the LocalTransformation matrix by combining the current offset and rotation values
+        /// </summary>
+        private void UpdateBaseTransform()
+        {
+            var mat = Matrix3D.Identity;
+            mat.Rotate(BaseJointRotation);
+            mat.Translate(BaseOffset);
+
+            BaseLocalTransform = mat;
+        }
+
+        /// <summary>
+        ///  builds the combined rotation from the root bone to this bone
+        /// </summary>
+        /// <returns>a quaternion representing the root-to-bone transformation for this bone</returns>
+        public Quaternion GetRootRotation()
+        {
+            Quaternion quat = Quaternion.Identity;
+            var current = this;
+            do
+            {
+                quat *= current.JointRotation;
+                current = current.Parent;
+            } while (current != null);
+
+            return quat; 
+        }
+
+        /// <summary>
+        /// builds & return the transformation from the root bone to this bone.
+        /// </summary>
+        public Matrix3D GetRootTransform()
+        {
+            Matrix3D transform = Matrix3D.Identity;
+            var current = this;
+            do
+            {
+                transform *= current.LocalTransform;
+                current = current.Parent;
+            } while (current != null);
+
+            return transform;
         }
 
         /// <summary>

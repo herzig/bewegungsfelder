@@ -17,6 +17,12 @@ namespace Mocap.VM
         /// </summary>
         public Sensor Model { get; }
 
+        public Vector3D Velocity { get { return Model.Velocity; } }
+        public Point3D Position { get { return Model.Position; } }
+
+        /// <summary>
+        /// returns the orientation from the last received value 
+        /// </summary>
         public Quaternion CurrentOrientation { get { return LastValue.Orientation; } }
 
         /// <summary>

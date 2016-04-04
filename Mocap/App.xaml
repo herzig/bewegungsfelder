@@ -8,6 +8,8 @@
              xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:Mocap.VM"
              xmlns:view="clr-namespace:Mocap.View"
+             xmlns:wpftoolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+             ShutdownMode="OnMainWindowClose"
              >
     <Application.Resources>
         <DataTemplate DataType="{x:Type vm:SensorVM}">
@@ -19,8 +21,33 @@
 
         <vm:AppVM x:Key="AppVM"/>
 
-        <Style TargetType="{x:Type Rectangle}" />
+        <BitmapImage x:Key="SettingsIcon" UriSource="Icons/settings.png" />
+        <BitmapImage x:Key="PlusIcon" UriSource="Icons/plus.png" />
+        <BitmapImage x:Key="RemoveIcon" UriSource="Icons/delete.png" />
+        <BitmapImage x:Key="PauseIcon" UriSource="Icons/pause.png" />
+        <BitmapImage x:Key="PlayIcon" UriSource="Icons/play.png" />
+        <BitmapImage x:Key="RecordIcon" UriSource="Icons/record.png" />
 
-        <BitmapImage x:Key="EyeIcon" UriSource="Icons/eye.png" />
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="LightGray" />
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="Margin" Value="0" />
+        </Style>
+        <Style TargetType="wpftoolkit:DropDownButton">
+            <Setter Property="Background" Value="LightGray" />
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="Margin" Value="0" />
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="4,2"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin" Value="4,2"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="4,2"/>
+        </Style>
     </Application.Resources>
 </Application>

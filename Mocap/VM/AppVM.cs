@@ -33,6 +33,11 @@ namespace Mocap.VM
         private DataCollector dataCollector;
 
         private KinematicVM kinematic;
+        private KinematicVM liveKinematic;
+
+        private KinematicAnimatorVM animator;
+
+        private Dictionary<SensorBoneLink, SensorBoneLinkVM> LinkVMs;
 
         /// <summary>
         /// collection of all registered sensors
@@ -41,9 +46,9 @@ namespace Mocap.VM
 
         public ObservableCollection<BoneVM> Bones { get; } = new ObservableCollection<BoneVM>();
 
-        public SensorBoneMap SensorBoneMap = new SensorBoneMap();
+        public SensorBoneMap SensorBoneMap { get; }
 
-        public KinematicVM Kinematic
+        public KinematicVM BaseKinematic
         {
             get { return kinematic; }
             set
@@ -67,7 +72,44 @@ namespace Mocap.VM
                         RootVisual3D.Children.Add(kinematic.Root.WorldVisual);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Kinematic)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BaseKinematic)));
+                }
+            }
+        }
+
+        public KinematicVM LiveKinematic
+        {
+            get { return liveKinematic; }
+            set
+            {
+                if (liveKinematic != null)
+                {
+                    RootVisual3D.Children.Remove(liveKinematic.Root.Visual);
+                    RootVisual3D.Children.Remove(liveKinematic.Root.WorldVisual);
+                }
+
+                liveKinematic = value;
+
+                if (liveKinematic != null)
+                {
+                    RootVisual3D.Children.Add(liveKinematic.Root.Visual);
+                    RootVisual3D.Children.Add(liveKinematic.Root.WorldVisual);
+                }
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LiveKinematic)));
+            }
+        }
+
+        public KinematicAnimatorVM Animator
+        {
+            get { return animator; }
+            set
+            {
+                if (animator != value)
+                {
+                    animator = value;
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Animator)));
                 }
             }
         }
@@ -104,6 +146,20 @@ namespace Mocap.VM
             dataCollector = new DataCollector();
             dataCollector.SensorAdded += OnSensorAdded;
 
+            // setup sensor-bone links
+            SensorBoneMap = new SensorBoneMap();
+            LinkVMs = new Dictionary<SensorBoneLink, SensorBoneLinkVM>();
+            SensorBoneMap.LinkAdded += (link) =>
+            {
+                LinkVMs.Add(link, new SensorBoneLinkVM(link));
+                RootVisual3D.Children.Add(LinkVMs[link].Visual);
+            };
+            SensorBoneMap.LinkRemoved += (link) =>
+                {
+                    RootVisual3D.Children.Remove(LinkVMs[link].Visual);
+                    LinkVMs.Remove(link);
+                };
+
             // setup sensors collection
             sensors = new ObservableCollection<SensorVM>();
             Sensors = new ReadOnlyObservableCollection<SensorVM>(sensors);
@@ -111,7 +167,10 @@ namespace Mocap.VM
                 sensors.Add(new SensorVM(item));
 
             // setup kinematic chain
-            Kinematic = new KinematicVM(new Kinematic());
+            BaseKinematic = new KinematicVM(new Kinematic());
+
+            // setup animator
+            Animator = new KinematicAnimatorVM(BaseKinematic, new Dictionary<Bone, List<Quaternion>>());
 
             // setup commands
             LoadBVHFileCommand = new RelayCommand<string>(LoadBVHFile);
@@ -134,10 +193,17 @@ namespace Mocap.VM
                 StopCaptureCommand.Execute(null);
             }
 
-            BVHNode bvhroot = BVHReader.ReadBvhHierarchy(file);
-            Bone newRoot = BVHConverter.ToBones(bvhroot, null);
+            Dictionary<BVHNode, List<Quaternion>> bvhMotionData;
+            BVHNode bvhroot = BVHReader.ReadBvhHierarchy(file, out bvhMotionData);
 
-            Kinematic = new KinematicVM(new Core.Kinematic(newRoot));
+            Dictionary<Bone, List<Quaternion>> newMotionData = new Dictionary<Bone, List<Quaternion>>();
+            Bone newRoot = BVHConverter.ToBones(bvhroot, null, bvhMotionData, newMotionData);
+
+            // create & assign a new kinematic view model. BoneVMs are also created in this process.
+            BaseKinematic = new KinematicVM(new Core.Kinematic(newRoot));
+
+
+            Animator = new KinematicAnimatorVM(BaseKinematic, newMotionData);
         }
 
         private void StartCapture()
@@ -183,7 +249,7 @@ namespace Mocap.VM
             }
             else
             {
-                SensorBoneMap.SetLink(bone.Model, sensor.Model);
+                SensorBoneMap.CreateLink(bone.Model, sensor.Model);
             }
 
             // add new link
@@ -208,13 +274,18 @@ namespace Mocap.VM
                 item.RaisePropertyChanged();
             }
 
-            if (currentCaptureState == CaptureState.Running)
+            foreach (var item in LinkVMs.Values)
             {
-                var orientations = SensorBoneMap.GetSensorOrientations();
-                Kinematic.Model.ApplyRotations(orientations);
+                item.Refresh();
             }
 
-            Kinematic.Refresh();
+            if (currentCaptureState == CaptureState.Running)
+            {
+                var orientations = SensorBoneMap.GetCalibratedSensorOrientations();
+                BaseKinematic.Model.ApplyWorldRotations(orientations);
+            }
+
+            BaseKinematic.Refresh();
         }
 
         /// <summary>

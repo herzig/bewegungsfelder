@@ -16,4 +16,12 @@ namespace Mocap.Core
             return quat;
         }
     }
+
+    public static class MatrixExtensions
+    {
+        public static  Vector3D GetOffset(this Matrix3D matrix)
+        {
+            return new Vector3D(matrix.OffsetX, matrix.OffsetY, matrix.OffsetZ);
+        }
+    }
 }

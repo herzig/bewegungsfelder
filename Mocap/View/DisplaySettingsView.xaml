@@ -18,6 +18,6 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Grid.Column="0" Text="CSys size:"/>
-        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CSysSize, Source={x:Static vm:DisplaySettings.Get}}"/>
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CSysSize, Source={x:Static vm:DisplaySettings.Get}, StringFormat=N2}"/>
     </Grid>
 </UserControl>

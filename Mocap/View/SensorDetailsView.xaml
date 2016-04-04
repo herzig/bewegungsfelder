@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="Mocap.View.SensorDetailsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Mocap.View"
+             xmlns:lvc="clr-namespace:LiveCharts;assembly=LiveCharts"
+             xmlns:oxy="http://oxyplot.org/wpf"
+             xmlns:helix="http://helix-toolkit.org/wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Button Grid.Row="0" Click="OnSampleGravityClick">Sample Gravity</Button>
+        <oxy:Plot Grid.Row="1" x:Name="plot_raw" Title="Raw Acceleration">
+            <oxy:Plot.Series>
+                <oxy:LineSeries Color="Red" x:Name="xRawSeries" />
+                <oxy:LineSeries Color="Green" x:Name="yRawSeries" />
+                <oxy:LineSeries Color="Blue" x:Name="zRawSeries" />
+            </oxy:Plot.Series>
+        </oxy:Plot>
+        <oxy:Plot Grid.Row="2" x:Name="plot_filtered" Title="No Gravity">
+            <oxy:Plot.Series>
+                <oxy:LineSeries Color="Red" x:Name="xFilteredSeries" />
+                <oxy:LineSeries Color="Green" x:Name="yFilteredSeries" />
+                <oxy:LineSeries Color="Blue" x:Name="zFilteredSeries" />
+            </oxy:Plot.Series>
+        </oxy:Plot>
+        <DockPanel Grid.Row="3">
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                <TextBlock Text="Velocity: "/>
+                <TextBlock Margin="5,0,0,0" Text="{Binding Velocity.X, StringFormat=N4}"/>
+                <TextBlock Margin="5,0,0,0" Text="{Binding Velocity.Y, StringFormat=N4}"/>
+                <TextBlock Margin="5,0,0,0" Text="{Binding Velocity.Z, StringFormat=N4}"/>
+
+                <TextBlock Margin="5,0,0,0" Text="Position: "></TextBlock>
+                <TextBlock Margin="5,0,0,0" Text="{Binding Position.X, StringFormat=N4}"></TextBlock>
+                <TextBlock Margin="5,0,0,0" Text="{Binding Position.Y, StringFormat=N4}"></TextBlock>
+                <TextBlock Margin="5,0,0,0" Text="{Binding Position.Z, StringFormat=N4}"></TextBlock>
+                
+            </StackPanel>
+            <helix:HelixViewport3D>
+                <local:CSysVisual3D/>
+            </helix:HelixViewport3D>
+        </DockPanel>
+    </Grid>
+</UserControl>

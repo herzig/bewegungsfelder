@@ -45,14 +45,22 @@ namespace Mocap.Core
 
                     int sensorId = BitConverter.ToInt32(result.Buffer, 0);
 
+                    var accel = new Vector3D();
                     var quat = new Quaternion();
-                    quat.W = BitConverter.ToInt32(result.Buffer, 1*sizeof(int));
-                    quat.X = BitConverter.ToInt32(result.Buffer, 2*sizeof(int));
-                    quat.Y = BitConverter.ToInt32(result.Buffer, 3*sizeof(int));
-                    quat.Z = BitConverter.ToInt32(result.Buffer, 4*sizeof(int));
+                    int i = 1;
+                    quat.W = BitConverter.ToInt32(result.Buffer, i++ * sizeof(int));
+                    quat.X = BitConverter.ToInt32(result.Buffer, i++ * sizeof(int));
+                    quat.Y = BitConverter.ToInt32(result.Buffer, i++ * sizeof(int));
+                    quat.Z = BitConverter.ToInt32(result.Buffer, i++ * sizeof(int));
+                    accel.X = BitConverter.ToInt16(result.Buffer, i++ * sizeof(int));
+                    accel.Y = BitConverter.ToInt16(result.Buffer, i++ * sizeof(int));
+                    accel.Z = BitConverter.ToInt16(result.Buffer, i++ * sizeof(int));
+                    uint timestamp = BitConverter.ToUInt32(result.Buffer, i++ * sizeof(int));
+
+                    accel = accel / 16384 * 9.81;
                     quat.Normalize();
 
-                    var value = new SensorValue(quat, DateTime.Now);
+                    var value = new SensorValue(quat, accel, DateTime.Now, timestamp);
 
                     var sourceAddr = result.RemoteEndPoint.Address;
 
@@ -66,7 +74,7 @@ namespace Mocap.Core
                         return newSensor;
                     });
 
-                    sensor.Data.Push(value);
+                    sensor.PushValue(value);
                 }
             }, TaskCreationOptions.LongRunning);
             task.Start();

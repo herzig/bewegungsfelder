@@ -9,13 +9,17 @@ namespace Mocap.Core
 {
     public class SensorValue
     {
+        public Vector3D Acceleration { get; }
         public Quaternion Orientation { get; }
         public DateTime ArrivalTime { get; }
+        public uint SensorTimestamp { get; }
 
-        public SensorValue(Quaternion orientation, DateTime arrivalTime)
+        public SensorValue(Quaternion orientation, Vector3D acceleration, DateTime arrivalTime, uint sensorTime)
         {
             Orientation = orientation;
             ArrivalTime = arrivalTime;
+            Acceleration = acceleration;
+            SensorTimestamp = sensorTime;
         }
     }
 }

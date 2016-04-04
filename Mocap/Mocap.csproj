@@ -55,8 +55,24 @@
       <HintPath>..\packages\HelixToolkit.Wpf.2015.1.686\lib\net45\HelixToolkit.Wpf.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="LiveCharts, Version=0.6.5.0, Culture=neutral, PublicKeyToken=d1901e6ed2eb0532, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.0.6.5.0\lib\net452\LiveCharts.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OxyPlot, Version=1.0.0.0, Culture=neutral, PublicKeyToken=638079a8f0bd61e9, processorArchitecture=MSIL">
+      <HintPath>..\packages\OxyPlot.Core.1.0.0-unstable2067\lib\net45\OxyPlot.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OxyPlot.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=75e952ba404cdbb0, processorArchitecture=MSIL">
+      <HintPath>..\packages\OxyPlot.Wpf.1.0.0-unstable2067\lib\net45\OxyPlot.Wpf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OxyPlot.Xps, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OxyPlot.Wpf.1.0.0-unstable2067\lib\net45\OxyPlot.Xps.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -112,14 +128,15 @@
     <Compile Include="BVH\BVHNode.cs" />
     <Compile Include="BVH\BVHReader.cs" />
     <Compile Include="Core\Kinematic.cs" />
-    <Compile Include="Core\QuaternionExtensions.cs" />
+    <Compile Include="Utilities\ColorExtension.cs" />
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
+    <Compile Include="Utilities\QuaternionExtensions.cs" />
     <Compile Include="Core\SensorBoneLink.cs" />
     <Compile Include="Core\SensorBoneMap.cs" />
-    <Compile Include="Helix\ItemsVisual3D.cs" />
-    <Compile Include="Helix\DataTemplate3D.cs" />
     <Compile Include="View\BoneView.xaml.cs">
       <DependentUpon>BoneView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\CSysVisual3D.cs" />
     <Compile Include="View\DisplaySettingsView.xaml.cs">
       <DependentUpon>DisplaySettingsView.xaml</DependentUpon>
     </Compile>
@@ -127,8 +144,17 @@
       <DependentUpon>KinematicEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\NullToNoneStringValueConverter.cs" />
+    <Compile Include="View\PlayerView.xaml.cs">
+      <DependentUpon>PlayerView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\QuaternionView.xaml.cs">
       <DependentUpon>QuaternionView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SensorDetailsView.xaml.cs">
+      <DependentUpon>SensorDetailsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SensorDetailsWindow.xaml.cs">
+      <DependentUpon>SensorDetailsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SensorView.xaml.cs">
       <DependentUpon>SensorView.xaml</DependentUpon>
@@ -137,6 +163,8 @@
     <Compile Include="VM\BoneVM.cs" />
     <Compile Include="VM\DisplaySettings.cs" />
     <Compile Include="VM\KinematicVM.cs" />
+    <Compile Include="VM\KinematicAnimatorVM.cs" />
+    <Compile Include="VM\SensorBoneLinkVM.cs" />
     <Compile Include="VM\SensorVM.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -166,7 +194,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\PlayerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\QuaternionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SensorDetailsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SensorDetailsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -204,7 +244,21 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Icons\eye.png" />
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\pause.png" />
+    <Resource Include="Icons\play.png" />
+    <Resource Include="Icons\record.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

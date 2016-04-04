@@ -1,5 +1,6 @@
 ﻿using HelixToolkit.Wpf;
 using Mocap.Core;
+using Mocap.View;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,10 +10,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Collections;
+using Mocap.Utilities;
 
 namespace Mocap.VM
 {
-    public class BoneVM : INotifyPropertyChanged
+    public class BoneVM : INotifyPropertyChanged, IEnumerable<BoneVM>
     {
         public static double LinkThickness = 3;
         public static double SelectedLinkThickness = 5;
@@ -22,7 +25,7 @@ namespace Mocap.VM
 
         private bool isSelected;
 
-        private CoordinateSystemVisual3D coordinateSystemVisual;
+        private CSysVisual3D coordinateSystemVisual;
 
         // visuals to connect to child bones
         private Dictionary<BoneVM, LinesVisual3D> childLinkVisualMap = new Dictionary<BoneVM, LinesVisual3D>();
@@ -113,8 +116,8 @@ namespace Mocap.VM
             DisplaySettings.Get.PropertyChanged += OnDisplaySettingsPropertyChanged;
 
             Visual = new ModelVisual3D();
-            coordinateSystemVisual = new CoordinateSystemVisual3D();
-            coordinateSystemVisual.ArrowLengths = DisplaySettings.Get.CSysSize;
+            coordinateSystemVisual = new CSysVisual3D();
+            coordinateSystemVisual.Length = DisplaySettings.Get.CSysSize;
 
             Visual.Children.Add(coordinateSystemVisual);
 
@@ -182,7 +185,7 @@ namespace Mocap.VM
 
         private void UpdateVisuals()
         {
-            coordinateSystemVisual.ArrowLengths = DisplaySettings.Get.CSysSize;
+            coordinateSystemVisual.Length = DisplaySettings.Get.CSysSize;
             foreach (var item in childLinkVisualMap)
             {
                 UpdateLinkVisual(item.Key);
@@ -204,6 +207,39 @@ namespace Mocap.VM
 
             foreach (var item in Children)
                 item.Traverse(action);
+        }
+
+        /// <summary>
+        /// traverses the tree and flattens all nodes into a list
+        /// </summary>
+        /// <param name="items">a list that will be populated with a flat list of all items in the subtree</param>
+        private void Collect(List<BoneVM> items)
+        {
+            items.Add(this);
+            foreach (var item in Children)
+            {
+                item.Collect(items);
+            }
+        }
+
+        /// <summary>
+        /// enumerates all tree items starting with the current node
+        /// </summary>
+        /// <returns>an enumerating for this subtree</returns>
+        public IEnumerator<BoneVM> GetEnumerator()
+        {
+            List<BoneVM> items = new List<BoneVM>();
+            Collect(items);
+            return EnumerableEx.Concat(items).GetEnumerator();
+        }
+
+        /// <summary>
+        /// enumerates all tree items starting with the current node
+        /// </summary>
+        /// <returns>an enumerating for this subtree</returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

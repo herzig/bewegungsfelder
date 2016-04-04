@@ -1,5 +1,4 @@
-﻿using Mocap.VM;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,21 +16,13 @@ using System.Windows.Shapes;
 namespace Mocap.View
 {
     /// <summary>
-    /// Interaction logic for SensorView.xaml
+    /// Interaction logic for PlayerView.xaml
     /// </summary>
-    public partial class SensorView : UserControl
+    public partial class PlayerView : UserControl
     {
-        private SensorDetailsWindow detailsWindow = new SensorDetailsWindow();
-
-        public SensorView()
+        public PlayerView()
         {
             InitializeComponent();
-        }
-
-        private void OnDetailsViewButtonClick(object sender, RoutedEventArgs e)
-        {
-            detailsWindow.Sensor = DataContext as SensorVM;
-            detailsWindow.Show();
         }
     }
 }

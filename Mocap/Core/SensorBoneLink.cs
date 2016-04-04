@@ -23,12 +23,30 @@ namespace Mocap.Core
 
         public Quaternion GetCalibratedOrientation()
         {
-            return Sensor.LastValue.Orientation * BaseRotation;
+            return BaseRotation * Sensor.LastValue.Orientation;
+        }
+
+        public Vector3D GetCalibratedAcceleration()
+        {
+            var m =Matrix3D.Identity;
+            m.Rotate(GetCalibratedOrientation());
+
+            //return Sensor.LastValue.Acceleration;
+            return m.Transform(Sensor.LastValue.Acceleration);
         }
 
         public void SetBaseRotation()
         {
-            BaseRotation = Sensor.LastValue.Orientation.Inverted();
+            var gravity = Sensor.GetAverageAcceleration(30);
+            gravity.Normalize();
+
+            //Vector3D upvector = new Vector3D(0,1,0);
+            //Vector3D axis = Vector3D.CrossProduct(gravity, upvector);
+            //double angle = Vector3D.AngleBetween(gravity, upvector);
+
+            //Quaternion rotation = new Quaternion(axis, angle);
+
+            BaseRotation = /*rotation **/ Sensor.LastValue.Orientation.Inverted() * Bone.GetRootRotation();
         }
     }
 }

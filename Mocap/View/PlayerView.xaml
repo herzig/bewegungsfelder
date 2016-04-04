@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="Mocap.View.PlayerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Mocap.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="500">
+    <StackPanel>
+        <DockPanel>
+            <TextBlock DockPanel.Dock="Right" Width="50"  TextAlignment="Right">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0} / {1}">
+                        <Binding Path="PlaybackPosition" />
+                        <Binding Path="Length" />
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+            <Slider DockPanel.Dock="Left" Value="{Binding PlaybackPosition}" Minimum="1" Maximum="{Binding Length}"/>
+        </DockPanel>
+        <DockPanel Height="26" LastChildFill="False">
+            <Button DockPanel.Dock="Left" Command="{Binding PlayCommand}">
+                <Image Source="{StaticResource PlayIcon}"/>
+            </Button>
+            <Button DockPanel.Dock="Left" Command="{Binding PauseCommand}">
+                <Image Source="{StaticResource PauseIcon}"/>
+            </Button>
+            <Button DockPanel.Dock="Left">
+                <Image Source="{StaticResource RecordIcon}"/>
+            </Button>
+            <TextBox DockPanel.Dock="Right" Width="50" Text="{Binding FPS, StringFormat=N2}" />
+            <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right" Text="FPS:" />
+        </DockPanel>
+
+    </StackPanel>
+</UserControl>

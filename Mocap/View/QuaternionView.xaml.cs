@@ -80,8 +80,18 @@ namespace Mocap.View
         private static void OnAngleChanged(DependencyObject instance, DependencyPropertyChangedEventArgs e)
         {
             var view = (QuaternionView)instance;
+
+            var axis = view.Axis;
+            if (axis == new Vector3D(0, 0, 0))
+                axis = new Vector3D(1, 0, 0);
+
             if (!view.suppressQuaternionUpdate)
-                view.SetValue(QuaternionProperty, new Quaternion(view.Axis, view.Angle));
+                view.SetValue(QuaternionProperty, new Quaternion(axis, view.Angle));
+        }
+
+        private void OnAxisDefinitionLostFocus(object sender, RoutedEventArgs e)
+        {
+            SetValue(AxisProperty, new Vector3D(Double.Parse(tb_x.Text), Double.Parse(tb_y.Text), Double.Parse(tb_z.Text)));
         }
     }
 }

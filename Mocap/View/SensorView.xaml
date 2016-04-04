@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:helix="http://helix-toolkit.org/wpf"
+             xmlns:view="clr-namespace:Mocap.View"
              mc:Ignorable="d" 
              d:DesignHeight="80" d:DesignWidth="200" Height="Auto">
     <Grid>
@@ -31,8 +32,9 @@
             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Model.SourceIp}" />
 
             <TextBlock Grid.Row="2" Grid.Column="0">Values:</TextBlock>
-            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Model.Data.Count}" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Model.Count}" />
 
+            <Button Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0" Click="OnDetailsViewButtonClick">Details</Button>
         </Grid>
         <Viewport3D Grid.Column="1">
             <Viewport3D.Camera>
@@ -47,7 +49,7 @@
                         </RotateTransform3D.Rotation>
                     </RotateTransform3D>
                 </ModelVisual3D.Transform>
-                <helix:CoordinateSystemVisual3D/>
+                <view:CSysVisual3D />
             </ModelVisual3D>
         </Viewport3D>
     </Grid>
