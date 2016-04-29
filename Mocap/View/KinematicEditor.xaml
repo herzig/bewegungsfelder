@@ -24,17 +24,33 @@
                 <Style TargetType="{x:Type TreeViewItem}">
                     <!-- auto expand all items-->
                     <Setter Property="IsExpanded" Value="True"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 </Style>
             </TreeView.ItemContainerStyle>
             <i:Interaction.Triggers>
+                <!-- KinematicVM selsected bone change command-->
                 <i:EventTrigger EventName="SelectedItemChanged">
                     <mvl:EventToCommand Command="{Binding ChangeSelectedCommand}" PassEventArgsToCommand="True"/>
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type vm:BoneVM}" ItemsSource="{Binding Children}">
-                    <DockPanel HorizontalAlignment="Stretch">
-                        <TextBlock DockPanel.Dock="Left" Text="{Binding Name}" HorizontalAlignment="Stretch"/>
+                    <DockPanel HorizontalAlignment="Stretch" Height="21">
+                        <TextBlock DockPanel.Dock="Left" Text="{Binding Name}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                        <Image DockPanel.Dock="Right" ToolTip="Sensor Assigned">
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Style.Triggers>
+                                        <DataTrigger  Binding="{Binding IsLinkedToSensor}" Value="True">
+                                            <Setter Property="Source" Value="{StaticResource Sensor}"/>
+                                        </DataTrigger >
+                                        <DataTrigger  Binding="{Binding IsLinkedToSensor}" Value="False">
+                                            <Setter Property="Source" Value="{x:Null}"/>
+                                        </DataTrigger >
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
                     </DockPanel>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>

@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Collections;
 using Mocap.Utilities;
+using System.Collections.Specialized;
 
 namespace Mocap.VM
 {
@@ -24,6 +25,8 @@ namespace Mocap.VM
         public static Color SelectedLinkColor = Colors.Black;
 
         private bool isSelected;
+
+        private SensorBoneLinkVM sensorBoneLink;
 
         private CSysVisual3D coordinateSystemVisual;
 
@@ -94,15 +97,35 @@ namespace Mocap.VM
         public Quaternion LocalRotation { get { return Model.JointRotation; } set { Model.JointRotation = value; } }
 
         /// <summary>
-        /// this bones associated sensor
+        /// this bones associated sensor.
+        /// read from SensorBoneLink property
         /// </summary>
-        public SensorVM Sensor { get; set; }
+        public SensorVM Sensor { get { return SensorBoneLink?.Sensor; } }
 
-        public Quaternion SensorToLocalTransform { get; set; }
+        /// <summary>
+        /// this bones sensor link. Is null if the bone is not linked to any sensor
+        /// </summary>
+        public SensorBoneLinkVM SensorBoneLink
+        {
+            get { return sensorBoneLink; }
+            set
+            {
+                if (sensorBoneLink != value)
+                {
+                    sensorBoneLink = value;
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SensorBoneLink)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLinkedToSensor)));
+                }
+            }
+        }
+
+        /// <summary>
+        /// indicates if there is a sensor associated with this bone.
+        /// </summary>
+        public bool IsLinkedToSensor { get { return SensorBoneLink != null; } }
 
         public ModelVisual3D Visual { get; }
-
-        public ModelVisual3D WorldVisual { get; }
 
         public ObservableCollection<BoneVM> Children { get; }
 
@@ -121,8 +144,6 @@ namespace Mocap.VM
 
             Visual.Children.Add(coordinateSystemVisual);
 
-            WorldVisual = new ModelVisual3D();
-
             // create child bones
             Children = new ObservableCollection<BoneVM>();
             Children.CollectionChanged += OnChildrenChanged;
@@ -132,7 +153,7 @@ namespace Mocap.VM
             }
         }
 
-        private void OnChildrenChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void OnChildrenChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
@@ -146,7 +167,6 @@ namespace Mocap.VM
                     Visual.Children.Add(linkVisual);
                     UpdateLinkVisual(child);
 
-                    WorldVisual.Children.Add(child.WorldVisual);
                 }
             }
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
@@ -155,7 +175,6 @@ namespace Mocap.VM
                 {
                     Visual.Children.Remove(child.Visual);
                     Visual.Children.Remove(childLinkVisualMap[child]);
-                    WorldVisual.Children.Remove(child.WorldVisual);
                 }
             }
         }
@@ -199,14 +218,6 @@ namespace Mocap.VM
             {
                 item.Refresh();
             }
-        }
-
-        public void Traverse(Action<BoneVM> action)
-        {
-            action(this);
-
-            foreach (var item in Children)
-                item.Traverse(action);
         }
 
         /// <summary>

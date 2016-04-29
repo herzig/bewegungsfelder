@@ -46,6 +46,7 @@ namespace Mocap.Core
                     int sensorId = BitConverter.ToInt32(result.Buffer, 0);
 
                     var accel = new Vector3D();
+                    var gyro = new Vector3D();
                     var quat = new Quaternion();
                     int i = 1;
                     quat.W = BitConverter.ToInt32(result.Buffer, i++ * sizeof(int));
@@ -55,12 +56,16 @@ namespace Mocap.Core
                     accel.X = BitConverter.ToInt16(result.Buffer, i++ * sizeof(int));
                     accel.Y = BitConverter.ToInt16(result.Buffer, i++ * sizeof(int));
                     accel.Z = BitConverter.ToInt16(result.Buffer, i++ * sizeof(int));
+                    gyro.X = BitConverter.ToInt16(result.Buffer, i++ * sizeof(int));
+                    gyro.Y = BitConverter.ToInt16(result.Buffer, i++ * sizeof(int));
+                    gyro.Z = BitConverter.ToInt16(result.Buffer, i++ * sizeof(int));
                     uint timestamp = BitConverter.ToUInt32(result.Buffer, i++ * sizeof(int));
 
-                    accel = accel / 16384 * 9.81;
+                    accel = accel / 8192;
+                    gyro = gyro / 16.4;
                     quat.Normalize();
 
-                    var value = new SensorValue(quat, accel, DateTime.Now, timestamp);
+                    var value = new SensorValue(quat, accel, gyro, DateTime.Now, timestamp);
 
                     var sourceAddr = result.RemoteEndPoint.Address;
 
@@ -69,7 +74,7 @@ namespace Mocap.Core
                     {
                         var newSensor = new Sensor(sourceAddr, id);
 
-                        // raises the sensor added event
+                        // raises the sensor added event on the main thread
                         startedDispatcher.BeginInvoke(SensorAdded, newSensor);
                         return newSensor;
                     });

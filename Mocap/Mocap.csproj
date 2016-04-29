@@ -125,16 +125,22 @@
     </ApplicationDefinition>
     <Compile Include="BVH\BVHConverter.cs" />
     <Compile Include="BVH\BVHEnums.cs" />
+    <Compile Include="BVH\BVHMotionData.cs" />
     <Compile Include="BVH\BVHNode.cs" />
-    <Compile Include="BVH\BVHReader.cs" />
+    <Compile Include="BVH\BVHReaderWriter.cs" />
     <Compile Include="Core\Kinematic.cs" />
+    <Compile Include="Core\MotionData.cs" />
+    <Compile Include="VM\CSysBuilder.cs" />
+    <Compile Include="Core\SensorBoneLink.cs" />
     <Compile Include="Utilities\ColorExtension.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\QuaternionExtensions.cs" />
-    <Compile Include="Core\SensorBoneLink.cs" />
     <Compile Include="Core\SensorBoneMap.cs" />
     <Compile Include="View\BoneView.xaml.cs">
       <DependentUpon>BoneView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CalibrationAxesSelectorView.xaml.cs">
+      <DependentUpon>CalibrationAxesSelectorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\CSysVisual3D.cs" />
     <Compile Include="View\DisplaySettingsView.xaml.cs">
@@ -150,6 +156,9 @@
     <Compile Include="View\QuaternionView.xaml.cs">
       <DependentUpon>QuaternionView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\SensorBoneCalibrationView.xaml.cs">
+      <DependentUpon>SensorBoneCalibrationView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\SensorDetailsView.xaml.cs">
       <DependentUpon>SensorDetailsView.xaml</DependentUpon>
     </Compile>
@@ -158,6 +167,9 @@
     </Compile>
     <Compile Include="View\SensorView.xaml.cs">
       <DependentUpon>SensorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Vector3DEditor.xaml.cs">
+      <DependentUpon>Vector3DEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="VM\AppVM.cs" />
     <Compile Include="VM\BoneVM.cs" />
@@ -186,6 +198,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\CalibrationAxesSelectorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\DisplaySettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -202,6 +218,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\SensorBoneCalibrationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\SensorDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -211,6 +231,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\SensorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Vector3DEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -259,6 +283,17 @@
     <Resource Include="Icons\pause.png" />
     <Resource Include="Icons\play.png" />
     <Resource Include="Icons\record.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\xcoord.png" />
+    <Resource Include="Icons\ycoord.png" />
+    <Resource Include="Icons\zcoord.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\gyro.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\refresh.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

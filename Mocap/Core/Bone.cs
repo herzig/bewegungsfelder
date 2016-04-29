@@ -155,7 +155,7 @@ namespace Mocap.Core
             var current = this;
             do
             {
-                transform *= current.LocalTransform;
+                transform.Append(current.LocalTransform);
                 current = current.Parent;
             } while (current != null);
 

@@ -18,24 +18,27 @@ namespace Mocap.VM
         {
             Paused = 0,
             Playback = 1,
+            Recording = 2,
         }
 
         private DispatcherTimer timer;
 
-        private State PlaybackState = State.Paused;
+        private State animatorState = State.Paused;
 
         private int playbackPosition;
 
         public double FPS
         {
-            get { return 1.0 / timer.Interval.TotalSeconds; }
+            get { return MotionData.FPS; }
             set
             {
-                value = Math.Max(1, value);
-                TimeSpan v = TimeSpan.FromSeconds(1.0 / value);
-                if (timer.Interval != v)
+                if (MotionData.FPS != value)
                 {
-                    timer.Interval = v;
+                    MotionData.FPS = value;
+
+                    value = Math.Max(1, value);
+                    TimeSpan interval = TimeSpan.FromSeconds(1.0 / value);
+                    timer.Interval = interval;
 
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FPS)));
                 }
@@ -64,10 +67,10 @@ namespace Mocap.VM
         {
             get
             {
-                if (MotionData.Count == 0)
+                if (MotionData.Data.Count == 0)
                     return 0;
 
-                return MotionData.First().Value.Count;
+                return MotionData.FrameCount;
             }
         }
 
@@ -77,11 +80,27 @@ namespace Mocap.VM
 
         public ICommand PauseCommand { get; }
 
-        public Dictionary<Bone, List<Quaternion>> MotionData { get; }
+        public ICommand RecordCommand { get; }
+
+        public State AnimatorState
+        {
+            get { return animatorState; }
+            set
+            {
+                if (animatorState != value)
+                {
+                    animatorState = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AnimatorState)));
+                }
+            }
+
+        }
+
+        public MotionData MotionData { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public KinematicAnimatorVM(KinematicVM kinematic, Dictionary<Bone, List<Quaternion>> motionData)
+        public KinematicAnimatorVM(KinematicVM kinematic, MotionData motionData)
         {
             this.Kinematic = kinematic;
             this.MotionData = motionData;
@@ -89,10 +108,12 @@ namespace Mocap.VM
             // setup commands
             PlayCommand = new RelayCommand(Play, CanPlay);
             PauseCommand = new RelayCommand(Pause, CanPause);
+            RecordCommand = new RelayCommand(Record, CanRecord);
 
             timer = new DispatcherTimer(DispatcherPriority.Normal);
+            TimeSpan interval = TimeSpan.FromSeconds(1.0 / motionData.FPS);
+            timer.Interval = interval;
             timer.Tick += OnTimerTick;
-            FPS = 10;
         }
 
         private void PlaybackPositionChanged()
@@ -103,8 +124,7 @@ namespace Mocap.VM
             }
 
             Dictionary<Bone, Quaternion> currentFramePose = new Dictionary<Bone, Quaternion>();
-
-            foreach (var item in MotionData)
+            foreach (var item in MotionData.Data)
             {
                 currentFramePose.Add(item.Key, item.Value[playbackPosition - 1]);
             }
@@ -114,40 +134,72 @@ namespace Mocap.VM
 
         private void OnTimerTick(object sender, EventArgs e)
         {
-            if (PlaybackState != State.Playback)
-                throw new InvalidOperationException("Player state is not Playback");
+            if (AnimatorState != State.Playback && AnimatorState != State.Recording)
+                throw new InvalidOperationException("Player state is not Playback/Recording");
 
-            PlaybackPosition++;
+            if (AnimatorState == State.Recording)
+            {
+                Kinematic.Model.Root.Traverse(bone =>
+                {
+                    if (bone.Children.Count == 0)
+                        return; // skip end nodes
+
+                    if (!MotionData.Data.ContainsKey(bone))
+                    {
+                        MotionData.Data.Add(bone, new List<Quaternion>());
+                    }
+                    MotionData.Data[bone].Add(bone.JointRotation);
+
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Length)));
+                });
+            }
+            else
+            {
+                ++PlaybackPosition;
+            }
         }
 
         private void Play()
         {
-            PlaybackState = State.Playback;
+            AnimatorState = State.Playback;
 
             timer.Start();
-
         }
 
         private bool CanPlay()
         {
-            return PlaybackState == State.Paused;
+            return AnimatorState == State.Paused;
         }
 
         private void Pause()
         {
-            PlaybackState = State.Paused;
+            AnimatorState = State.Paused;
 
             timer.Stop();
         }
 
         private bool CanPause()
         {
-            return PlaybackState == State.Playback;
+            return AnimatorState == State.Playback;
         }
 
+        private void Record()
+        {
+            if (AnimatorState == State.Recording)
+            { // stop recording
+                AnimatorState = State.Paused;
+                timer.Stop();
+            }
+            else
+            { // start recording
+                AnimatorState = State.Recording;
+                timer.Start();
+            }
+        }
 
-
-
-
+        private bool CanRecord()
+        {
+            return AnimatorState == State.Paused || AnimatorState == State.Recording;
+        }
     }
 }

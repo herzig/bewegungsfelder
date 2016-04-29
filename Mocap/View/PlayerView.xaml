@@ -8,7 +8,7 @@
              d:DesignHeight="50" d:DesignWidth="500">
     <StackPanel>
         <DockPanel>
-            <TextBlock DockPanel.Dock="Right" Width="50"  TextAlignment="Right">
+            <TextBlock DockPanel.Dock="Right"  TextAlignment="Right">
                 <TextBlock.Text>
                     <MultiBinding StringFormat="{}{0} / {1}">
                         <Binding Path="PlaybackPosition" />
@@ -16,7 +16,7 @@
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
-            <Slider DockPanel.Dock="Left" Value="{Binding PlaybackPosition}" Minimum="1" Maximum="{Binding Length}"/>
+            <Slider DockPanel.Dock="Left" Value="{Binding PlaybackPosition}" Minimum="1" Maximum="{Binding Length}" />
         </DockPanel>
         <DockPanel Height="26" LastChildFill="False">
             <Button DockPanel.Dock="Left" Command="{Binding PlayCommand}">
@@ -25,8 +25,17 @@
             <Button DockPanel.Dock="Left" Command="{Binding PauseCommand}">
                 <Image Source="{StaticResource PauseIcon}"/>
             </Button>
-            <Button DockPanel.Dock="Left">
+            <Button DockPanel.Dock="Left" x:Name="bu_record" Command="{Binding RecordCommand}">
                 <Image Source="{StaticResource RecordIcon}"/>
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButtonStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding AnimatorState}" Value="Recording">
+                                <Setter Property="Background" Value="Red"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
             </Button>
             <TextBox DockPanel.Dock="Right" Width="50" Text="{Binding FPS, StringFormat=N2}" />
             <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right" Text="FPS:" />

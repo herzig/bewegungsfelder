@@ -17,7 +17,7 @@ namespace Mocap.Core
 
         public event Action<SensorBoneLink> LinkRemoved;
 
-        public void CreateLink(Bone bone, Sensor sensor)
+        public SensorBoneLink CreateLink(Bone bone, Sensor sensor)
         {
             if (links.ContainsKey(bone))
             {
@@ -29,6 +29,8 @@ namespace Mocap.Core
             var link = new SensorBoneLink(bone, sensor);
             links.Add(bone, link);
             LinkAdded?.Invoke(link);
+
+            return link;
         }
 
         public void RemoveLink(Bone bone)
@@ -57,10 +59,7 @@ namespace Mocap.Core
         /// </summary>
         public void Clear()
         {
-            foreach (var item in links.Keys)
-            {
-                RemoveLink(item);
-            }
+            links.Clear();
         }
     }
 

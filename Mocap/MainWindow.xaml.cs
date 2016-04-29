@@ -13,8 +13,11 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.ComponentModel;
+using HelixToolkit.Wpf;
 
 namespace Mocap
 {
@@ -32,8 +35,23 @@ namespace Mocap
             viewport.Children.Add(ViewModel.RootVisual3D);
 
             ViewModel.StartServer();
+            ViewModel.PropertyChanged += OnViewModelPropertyChanged;
         }
 
+        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewModel.CalibrationBoneLink))
+            { // centers & zooms the viewport to show show the selected bone (and children)
+                if (ViewModel.CalibrationBoneLink != null)
+                {
+                    var link = ViewModel.CalibrationBoneLink;
+                    Matrix3D boneTransform = link.Bone.Visual.GetTransform();
+
+                    var bounds = link.Bone.Visual.FindBounds(new MatrixTransform3D(boneTransform));
+                    viewport.ZoomExtents(bounds, 500);
+                }
+            }
+        }
 
         private void OnExitClick(object sender, RoutedEventArgs e)
         {
@@ -48,6 +66,16 @@ namespace Mocap
             if (fileDialog.ShowDialog(this) == true)
             {
                 ViewModel.LoadBVHFileCommand.Execute(fileDialog.FileName);
+            }
+        }
+
+        private void OnSaveBVHClick(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog fileDialog = new SaveFileDialog();
+
+            if (fileDialog.ShowDialog(this) == true)
+            {
+                ViewModel.SaveBVHFileCommand.Execute(fileDialog.FileName);
             }
         }
     }

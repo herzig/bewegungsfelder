@@ -27,12 +27,21 @@
         <BitmapImage x:Key="PauseIcon" UriSource="Icons/pause.png" />
         <BitmapImage x:Key="PlayIcon" UriSource="Icons/play.png" />
         <BitmapImage x:Key="RecordIcon" UriSource="Icons/record.png" />
+        <BitmapImage x:Key="Sensor" UriSource="Icons/gyro.png" />
+        <BitmapImage x:Key="XCoord" UriSource="Icons/xcoord.png" />
+        <BitmapImage x:Key="YCoord" UriSource="Icons/ycoord.png" />
+        <BitmapImage x:Key="ZCoord" UriSource="Icons/zcoord.png" />
+        <BitmapImage x:Key="RefreshIcon" UriSource="Icons/refresh.png" />
 
-        <Style TargetType="Button">
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+
+        <Style TargetType="Button" x:Key="BaseButtonStyle">
             <Setter Property="Background" Value="LightGray" />
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="4,2" />
             <Setter Property="Margin" Value="0" />
+        </Style>
+        <Style TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
         </Style>
         <Style TargetType="wpftoolkit:DropDownButton">
             <Setter Property="Background" Value="LightGray" />

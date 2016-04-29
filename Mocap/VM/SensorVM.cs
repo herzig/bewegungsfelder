@@ -17,8 +17,11 @@ namespace Mocap.VM
         /// </summary>
         public Sensor Model { get; }
 
-        public Vector3D Velocity { get { return Model.Velocity; } }
-        public Point3D Position { get { return Model.Position; } }
+        /// <summary>
+        /// a calculated sample rate for this sensor.
+        /// this is recalculated on Refresh();
+        /// </summary>
+        public double SampleRate { get; set; }
 
         /// <summary>
         /// returns the orientation from the last received value 
@@ -48,8 +51,10 @@ namespace Mocap.VM
         /// <summary>
         /// raise the property changed event to cause view updates
         /// </summary>
-        public void RaisePropertyChanged()
+        public void Refresh()
         {
+            SampleRate = Model.GetSampleRate(5);
+
             // empty property changed event is interpreted as a change on all properties
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));
         }

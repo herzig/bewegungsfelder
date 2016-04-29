@@ -11,6 +11,7 @@
              d:DesignHeight="150" d:DesignWidth="300"
              >
     <UserControl.Resources>
+        <!-- used to convert from null to an empty string (for sensor combobox) -->
         <local:NullToNoneStringValueConverter x:Key="NullToStringConverter"/>
     </UserControl.Resources>
     <Grid>
@@ -23,6 +24,7 @@
             <RowDefinition Height="26"/>
             <RowDefinition Height="26"/>
             <RowDefinition Height="26"/>
+            <RowDefinition Height="26"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Text="Name:" />
@@ -31,7 +33,7 @@
         <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Text="Offset:" />
         <TextBox Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" Text="{Binding Offset}" />
 
-        <local:QuaternionView Grid.ColumnSpan="2" Grid.Row="2"  VerticalAlignment="Center" Quaternion="{Binding LocalRotation}" />
+        <local:QuaternionView Grid.ColumnSpan="2" Grid.Row="2" VerticalAlignment="Center" Quaternion="{Binding LocalRotation}" />
 
         <TextBlock Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Text="Sensor:" />
         <ComboBox Grid.Column="1" Grid.Row="3" x:Name="cb_sensors" SelectionChanged="cb_sensors_SelectionChanged" SelectedItem="{Binding Sensor, Mode=OneWay, Converter={StaticResource NullToStringConverter}}" >
@@ -49,7 +51,6 @@
                     <CollectionContainer Collection="{Binding Source={StaticResource Sensors}}"/>
                 </CompositeCollection>
             </ComboBox.ItemsSource>
-
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock>
@@ -63,6 +64,8 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-
+        <Button HorizontalAlignment="Left" Width="110" Grid.Row="4" Grid.Column="2" CommandParameter="{Binding DataContext, RelativeSource={RelativeSource Self}}" Command="{Binding StartSensorCalibrationCommand, Source={StaticResource AppVM}}">
+            Calibrate
+        </Button>
     </Grid>
 </UserControl>

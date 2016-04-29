@@ -30,7 +30,7 @@ namespace Mocap.Core
             }, Quaternion.Identity);
         }
 
-        public void ApplyLocalRotation(Dictionary<Bone,Quaternion> jointRotations)
+        public void ApplyLocalRotation(Dictionary<Bone, Quaternion> jointRotations)
         {
             Root.Traverse((bone) =>
             {
@@ -39,6 +39,16 @@ namespace Mocap.Core
                     bone.JointRotation = jointRotations[bone];
                 }
             });
+        }
+
+        /// <summary>
+        /// collects the local orientation values for all bones in the tree
+        /// </summary>
+        public Dictionary<Bone, Quaternion> CollectLocalOrientations()
+        {
+            var result = new Dictionary<Bone, Quaternion>();
+            Root.Traverse(bone => result.Add(bone, bone.JointRotation));
+            return result;
         }
     }
 }

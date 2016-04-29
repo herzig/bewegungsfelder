@@ -11,50 +11,61 @@
         Title="MainWindow" Height="600" Width="800"
         DataContext="{StaticResource AppVM}">
     <DockPanel LastChildFill="True">
+        <!-- Main Panel -->
         <Menu DockPanel.Dock="Top" IsMainMenu="True" Height="24">
             <MenuItem Header="_File">
                 <MenuItem Header="Load _BVH" Click="OnLoadBVHClick"/>
+                <MenuItem Header="_Save BVH" Click="OnSaveBVHClick"/>
                 <Separator/>
                 <MenuItem Header="Exit" Click="OnExitClick"/>
             </MenuItem>
         </Menu>
         <Grid>
+            <!-- Left/Right Grid-->
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="300"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <DockPanel>
-                    <Expander Header="Mocap Control" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
-                        <StackPanel>
-                            <Button Command="{Binding StartCaptureCommand}">Start Capture</Button>
-                            <Button Command="{Binding StopCaptureCommand}">Stop Capture</Button>
-                            <Separator/>
-                            <Button Command="{Binding SetBaseRotationCommand}">Set Base Rotations</Button>
-                        </StackPanel>
-                    </Expander>
-                    <Separator DockPanel.Dock="Top"/>
+            <!-- Left/Tools Columns -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <!-- Sensors, Kinematic etc... -->
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Selected Item Details -->
+                    <RowDefinition Height="200"/>
+                </Grid.RowDefinitions>
+                <!-- Scoll viewer contains sensor list, kinematic tree view etc.)-->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0">
+                    <DockPanel LastChildFill="True">
+                        <Expander Header="Mocap Control" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                            <StackPanel>
+                                <Button Command="{Binding StartCaptureCommand}">Start Capture</Button>
+                                <Button Command="{Binding StopCaptureCommand}">Stop Capture</Button>
+                                <Separator/>
+                                <Button Command="{Binding SetBaseRotationCommand}">Set Base Rotations</Button>
+                            </StackPanel>
+                        </Expander>
+                        <Separator DockPanel.Dock="Top"/>
 
-                    <Expander Header="Sensors" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
-                        <ListBox BorderThickness="0" ItemsSource="{Binding Sensors}" MinHeight="90"/>
-                    </Expander>
-                    <Separator DockPanel.Dock="Top"/>
+                        <Expander Header="Sensors" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                            <ListBox BorderThickness="0" ItemsSource="{Binding Sensors}" MinHeight="90"/>
+                        </Expander>
+                        <Separator DockPanel.Dock="Top"/>
 
-                    <Expander Header="Kinematic Structure" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
-                        <local:KinematicEditor DataContext="{Binding BaseKinematic}" MinHeight="90"/>
-                    </Expander>
-                    <Separator DockPanel.Dock="Top"/>
+                        <Expander Header="Kinematic Structure" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                            <local:KinematicEditor DataContext="{Binding BaseKinematic}" MinHeight="90"/>
+                        </Expander>
+                    </DockPanel>
+                </ScrollViewer>
 
-                    <Expander Header="Details" DockPanel.Dock="Bottom" 
-                      ExpandDirection="Down" IsExpanded="True" Content="{Binding DetailsItem}">
-                    </Expander>
-
-                </DockPanel>
-            </ScrollViewer>
+                <GridSplitter  Grid.Row="1" Height="5" HorizontalAlignment="Stretch" ResizeDirection="Rows"/>
+                <Expander Grid.Row="2" Header="Details" ExpandDirection="Down" IsExpanded="True" Content="{Binding DetailsItem}"/>
+            </Grid>
 
             <GridSplitter Width="5" ResizeBehavior="CurrentAndNext"/>
-
+            <!-- Main content view -->
             <DockPanel Grid.Column="1" LastChildFill="True">
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="26">
                     <wpftoolkit:DropDownButton HorizontalAlignment="Right">
@@ -65,10 +76,13 @@
                     </wpftoolkit:DropDownButton>
                 </StackPanel>
 
+                <local:CalibrationAxesSelectorView x:Name="calibrationAxisVisual" DockPanel.Dock="Top" SensorBoneLink="{Binding CalibrationBoneLink}"
+                                                   Visibility="{Binding IsInCalibrationState, Converter={StaticResource BoolToVisConverter}}"/>
+
                 <local:PlayerView DockPanel.Dock="Bottom" DataContext="{Binding Animator}"/>
 
                 <helix:HelixViewport3D x:Name="viewport"
-                               CameraRotationMode="Trackball">
+                               CameraRotationMode="Trackball" RotateAroundMouseDownPoint="True">
                     <helix:DefaultLights></helix:DefaultLights>
                 </helix:HelixViewport3D>
             </DockPanel>

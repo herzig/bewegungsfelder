@@ -8,24 +8,55 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
 namespace Mocap.VM
 {
-    public class SensorBoneLinkVM
+    public class SensorBoneLinkVM: INotifyPropertyChanged
     {
         private CSysVisual3D csysVisual;
         private LinesVisual3D accelerationVisual;
 
+        public bool IsCalibrated { get { return Model.CalibrationTransform != Matrix3D.Identity; } }
+        public bool IsNotCalibrated { get { return !IsCalibrated; } }
+
+        public int CalibrationAxesCount { get { return Model.CalibrationAxes.Count; } }
+
+        public CSysBuilder SensorFrameDefinition { get; } = new CSysBuilder();
+
+        /// <summary>
+        /// the underlying model
+        /// </summary>
         public SensorBoneLink Model { get; }
 
+        /// <summary>
+        /// model display on main 3d viewport
+        /// </summary>
         public ModelVisual3D Visual { get; }
 
-        public SensorBoneLinkVM(SensorBoneLink model)
+        /// <summary>
+        /// the linked sensor
+        /// </summary>
+        public SensorVM Sensor{ get; }
+
+        /// <summary>
+        /// the linked bone
+        /// </summary>
+        public BoneVM Bone{ get; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public SensorBoneLinkVM(SensorBoneLink model, SensorVM sensor, BoneVM bone)
         {
             this.Model = model;
+            this.Sensor = sensor;
+            this.Bone = bone;
 
+            // setup commands
+
+            // setup visual
             Visual = new ModelVisual3D();
 
             csysVisual = new CSysVisual3D();
@@ -41,6 +72,27 @@ namespace Mocap.VM
             Visual.Children.Add(accelerationVisual);
         }
 
+        public void ClearCalibration()
+        {
+            Model.ClearCalibration();
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsCalibrated)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsNotCalibrated)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CalibrationAxesCount)));
+        }
+
+        public void AddCalibrationAxisFromGyro(DateTime calibrationStart, Vector3D targetAxis)
+        {
+            Model.AddCalibrationAxisFromGyro(calibrationStart, targetAxis);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CalibrationAxesCount)));
+        }
+
+        public void CalculateCalibrationTransform()
+        {
+            Model.CalculateCalibrationTransform();
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsCalibrated)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsNotCalibrated)));
+        }
+
         public void Refresh()
         {
             var boneTransform = Model.Bone.GetRootTransform();
@@ -54,7 +106,7 @@ namespace Mocap.VM
 
             accelerationVisual.Points.RemoveAt(1);
             accelerationVisual.Points.Add(Model.GetCalibratedAcceleration().ToPoint3D());
-            accelerationVisual.Transform = new TranslateTransform3D(boneTransform.OffsetX, boneTransform.OffsetY, boneTransform.OffsetZ);
+            accelerationVisual.Transform = new TranslateTransform3D(boneTransform.GetOffset());
         }
     }
 }

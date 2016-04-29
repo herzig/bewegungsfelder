@@ -27,13 +27,13 @@ namespace Mocap.View
     {
         DispatcherTimer refreshTimer;
 
-        private List<DataPoint> xRaw = new List<DataPoint>();
-        private List<DataPoint> yRaw = new List<DataPoint>();
-        private List<DataPoint> zRaw = new List<DataPoint>();
+        private List<DataPoint> xAccelData = new List<DataPoint>();
+        private List<DataPoint> yAccelData = new List<DataPoint>();
+        private List<DataPoint> zAccelData = new List<DataPoint>();
 
-        private List<DataPoint> xFiltered = new List<DataPoint>();
-        private List<DataPoint> yFiltered = new List<DataPoint>();
-        private List<DataPoint> zFiltered = new List<DataPoint>();
+        private List<DataPoint> xGyroData = new List<DataPoint>();
+        private List<DataPoint> yGyroData = new List<DataPoint>();
+        private List<DataPoint> zGyroData = new List<DataPoint>();
 
         public SensorVM Sensor
         {
@@ -54,50 +54,52 @@ namespace Mocap.View
             refreshTimer.Interval = TimeSpan.FromMilliseconds(100);
             refreshTimer.Tick += OnRefreshTimerTick;
 
-            xRawSeries.ItemsSource = xRaw;
-            yRawSeries.ItemsSource = yRaw;
-            zRawSeries.ItemsSource = zRaw;
+            xAccel.ItemsSource = xAccelData;
+            yAccel.ItemsSource = yAccelData;
+            zAccel.ItemsSource = zAccelData;
 
-            xFilteredSeries.ItemsSource = xFiltered;
-            yFilteredSeries.ItemsSource = yFiltered;
-            zFilteredSeries.ItemsSource = zFiltered;
+            xGyro.ItemsSource = xGyroData;
+            yGyro.ItemsSource = yGyroData;
+            zGyro.ItemsSource = zGyroData;
         }
 
         private void OnRefreshTimerTick(object sender, EventArgs e)
         {
-            xRaw.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Acceleration.X));
-            yRaw.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Acceleration.Y));
-            zRaw.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Acceleration.Z));
+            xAccelData.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Acceleration.X));
+            yAccelData.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Acceleration.Y));
+            zAccelData.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Acceleration.Z));
 
-            xFiltered.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Acceleration.X - Sensor.Model.Gravity.X));
-            yFiltered.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Acceleration.Y - Sensor.Model.Gravity.Y));
-            zFiltered.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Acceleration.Z - Sensor.Model.Gravity.Z));
+            xGyroData.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Gyro.X));
+            yGyroData.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Gyro.Y));
+            zGyroData.Add(new DataPoint(Sensor.LastValue.SensorTimestamp, Sensor.LastValue.Gyro.Z));
 
-            if (xRaw.Count > 40)
-                xRaw.RemoveRange(0, xRaw.Count - 40);
-            if (yRaw.Count > 40)
-                yRaw.RemoveRange(0, yRaw.Count - 40);
-            if (zRaw.Count > 40)
-                zRaw.RemoveRange(0, zRaw.Count - 40);
+            int numSamples = 100;
+            if (xAccelData.Count > numSamples)
+                xAccelData.RemoveRange(0, xAccelData.Count - numSamples);
+            if (yAccelData.Count > numSamples)
+                yAccelData.RemoveRange(0, yAccelData.Count - numSamples);
+            if (zAccelData.Count > numSamples)
+                zAccelData.RemoveRange(0, zAccelData.Count - numSamples);
 
-            if (xFiltered.Count > 40)
-                xFiltered.RemoveRange(0, xFiltered.Count - 40);
-            if (yFiltered.Count > 40)
-                yFiltered.RemoveRange(0, yFiltered.Count - 40);
-            if (zFiltered.Count > 40)
-                zFiltered.RemoveRange(0, zFiltered.Count - 40);
+            if (xGyroData.Count > numSamples)
+                xGyroData.RemoveRange(0, xGyroData.Count - numSamples);
+            if (yGyroData.Count > numSamples)
+                yGyroData.RemoveRange(0, yGyroData.Count - numSamples);
+            if (zGyroData.Count > numSamples)
+                zGyroData.RemoveRange(0, zGyroData.Count - numSamples);
 
-            plot_raw.InvalidatePlot();
-            plot_filtered.InvalidatePlot();
+            plot_accel.InvalidatePlot();
+            plot_gyro.InvalidatePlot();
         }
 
         private static void OnSensorPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
             var view = (SensorDetailsView)obj;
-            view.xRaw.Clear();
-            view.yRaw.Clear();
-            view.zRaw.Clear();
-            view.plot_raw.InvalidatePlot();
+            view.xAccelData.Clear();
+            view.yAccelData.Clear();
+            view.zAccelData.Clear();
+            view.plot_accel.InvalidatePlot();
+            view.plot_gyro.InvalidatePlot();
 
             if (e.NewValue == null)
                 view.refreshTimer.Stop();
@@ -105,11 +107,6 @@ namespace Mocap.View
                 view.refreshTimer.Start();
 
             view.DataContext = e.NewValue;
-        }
-
-        private void OnSampleGravityClick(object sender, RoutedEventArgs e)
-        {
-            Sensor.Model.StartPositionIntegration();
         }
     }
 }

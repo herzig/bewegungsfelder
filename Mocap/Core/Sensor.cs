@@ -11,8 +11,6 @@ namespace Mocap.Core
 {
     public class Sensor
     {
-        private bool recordPosition = false;
-
         public int Id { get; }
 
         public IPAddress SourceIp { get; }
@@ -20,10 +18,6 @@ namespace Mocap.Core
         private ConcurrentStack<SensorValue> data { get; }
 
         public int Count { get { return data.Count; } }
-
-        public Point3D Position { get; private set; }
-        public Vector3D Velocity { get; private set; }
-        public Vector3D Gravity { get; private set; }
 
         /// <summary>
         /// the last sensor value received.
@@ -44,12 +38,6 @@ namespace Mocap.Core
         public void PushValue(SensorValue value)
         {
             data.Push(value);
-
-            if (recordPosition)
-            {
-                Velocity += (value.Acceleration - Gravity)*(1/10.0);
-                Position += Velocity*(1/10.0);
-            }
         }
 
         public Sensor(IPAddress source, int id)
@@ -59,22 +47,30 @@ namespace Mocap.Core
             this.data = new ConcurrentStack<SensorValue>();
         }
 
-        public Vector3D GetAverageAcceleration(int numSamples = 30)
+        /// <summary>
+        /// calculate a sensor sample rate from the given number of samples
+        /// </summary>
+        /// <param name="numSamples"></param>
+        public double GetSampleRate(int numSamples)
         {
-            Vector3D sum = new Vector3D();
-            foreach (var item in data.Take(numSamples))
+            double dt = 0;
+
+            var samples = data.Take(numSamples);
+
+            double prevTimestamp = samples.First().SensorTimestamp;
+            foreach (var item in samples)
             {
-                sum += item.Acceleration;
+                dt += prevTimestamp - item.SensorTimestamp;
+                prevTimestamp = item.SensorTimestamp;
             }
-            return sum / numSamples;
+
+            // sensor timestamps are in microseconds
+            return 1000000 / (dt / numSamples);
         }
 
-        public void StartPositionIntegration()
+        public SensorValue[] GetDataSince(DateTime t)
         {
-            Velocity = new Vector3D();
-            Position = new Point3D();
-            Gravity = GetAverageAcceleration(numSamples: 50);
-            recordPosition = true;
+            return data.TakeWhile(v => v.ArrivalTime > t).ToArray();
         }
     }
 }

@@ -17,12 +17,17 @@ namespace Mocap.VM
         private BoneVM selectedItem;
 
         /// <summary>
+        /// contains all Bone-BoneVM pairs
+        /// </summary>
+        public Dictionary<Bone, BoneVM> BoneVMMap { get; } = new Dictionary<Bone, BoneVM>();
+
+        /// <summary>
         /// the underlying model for this view model
         /// </summary>
         public Kinematic Model { get; }
 
         /// <summary>
-        /// roots collection is always just a single entry, mainly used to be able to bind to collection views
+        /// roots collection is always just a single entry. Used to be able to bind to collection views
         /// </summary>
         public BoneVM[] Roots { get; } = new BoneVM[1];
 
@@ -92,6 +97,11 @@ namespace Mocap.VM
             // create the bone ViewModel tree
             Roots[0] = new BoneVM(model.Root, null);
 
+            foreach (BoneVM item in Root)
+            {
+                BoneVMMap.Add(item.Model, item);
+            }
+
             // setup commands
             AddBoneCommand = new RelayCommand(AddBone, CanAddBone);
             RemoveBoneCommand = new RelayCommand(RemoveBone, CanRemoveBone);
@@ -114,10 +124,11 @@ namespace Mocap.VM
             if (SelectedItem == null)
                 throw new InvalidOperationException("No bone selected!");
 
-            var model = new Bone(parent: SelectedItem.Model, offset: new Vector3D(1,0,0));
+            var model = new Bone(parent: SelectedItem.Model, offset: new Vector3D(1, 0, 0));
             var vm = new BoneVM(model, parent: SelectedItem);
             SelectedItem.Children.Add(vm);
             SelectedItem.Model.Children.Add(model);
+            BoneVMMap.Add(model, vm);
         }
 
         /// <summary>
@@ -139,6 +150,7 @@ namespace Mocap.VM
                 throw new InvalidOperationException("Can't remove root node");
 
             SelectedItem.Parent.Children.Remove(SelectedItem);
+            BoneVMMap.Remove(SelectedItem.Model);
         }
 
         /// <summary>

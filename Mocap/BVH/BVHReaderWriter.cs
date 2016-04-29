@@ -5,15 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
+using Mocap.Utilities;
 
 namespace Mocap.BVH
 {
-    public class BVHReader
+    public class BVHReaderWriter
     {
         /// <summary>
         /// reads BVH hierarchical data from a BVH file
         /// </summary>
-        public static BVHNode ReadBvhHierarchy(string file, out Dictionary<BVHNode, List<Quaternion>> motionData)
+        public static BVHNode ReadBvh(string file, out BVHMotionData motionData)
         {
             using (var reader = new StreamReader(file))
             {
@@ -28,7 +29,10 @@ namespace Mocap.BVH
             }
         }
 
-        public static Dictionary<BVHNode, List<Quaternion>> ReadMotionData(StreamReader reader, BVHNode root)
+        /// <summary>
+        /// read motion data from a bvh file, starting with the MOTION keyword
+        /// </summary>
+        public static BVHMotionData ReadMotionData(StreamReader reader, BVHNode root)
         {
             var line = reader.ReadLine().ToLower().Trim();
             if (line != "motion")
@@ -54,6 +58,7 @@ namespace Mocap.BVH
                 throw new FileFormatException("Could not read frame time");
             }
 
+            // read all frame data
             Dictionary<BVHNode, List<Quaternion>> motionData = new Dictionary<BVHNode, List<Quaternion>>();
             while (!reader.EndOfStream)
             {
@@ -63,12 +68,17 @@ namespace Mocap.BVH
 
                 double[] frameData = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries).Select(t => double.Parse(t)).ToArray();
 
+                // interpret frame-by-frame
                 int offset = 0;
                 ReadFrameData(root, motionData, frameData, ref offset);
             }
-            return motionData;
+
+            return new BVHMotionData(frameTime, motionData);
         }
 
+        /// <summary>
+        /// interprets motion data for a single frame
+        /// </summary>
         private static void ReadFrameData(BVHNode node, Dictionary<BVHNode, List<Quaternion>> motionData, double[] values, ref int offset)
         {
             if (node.Type == BVHNodeTypes.EndSite)
@@ -87,19 +97,12 @@ namespace Mocap.BVH
             if (node.Channels[0] == BVHChannels.Xposition)
                 ignoredOffset += 3;
 
-            if (node.Channels[ignoredOffset] != BVHChannels.Zrotation
-                || node.Channels[ignoredOffset + 1] != BVHChannels.Xrotation
-                || node.Channels[ignoredOffset + 2] != BVHChannels.Yrotation)
-            {
-                throw new FileFormatException("Joint Channels have to be in ZXY order");
-            }
-
             // convert rotation to quaternion
-            var qz = new Quaternion(new Vector3D(0, 0, 1), nodevalues[ignoredOffset]);
-            var qx = new Quaternion(new Vector3D(1, 0, 0), nodevalues[ignoredOffset + 1]);
-            var qy = new Quaternion(new Vector3D(0, 1, 0), nodevalues[ignoredOffset + 2]);
+            var q1 = new Quaternion(GetAxisFromChannelType(node.Channels[ignoredOffset]), nodevalues[ignoredOffset]);
+            var q2 = new Quaternion(GetAxisFromChannelType(node.Channels[ignoredOffset + 1]), nodevalues[ignoredOffset + 1]);
+            var q3 = new Quaternion(GetAxisFromChannelType(node.Channels[ignoredOffset + 2]), nodevalues[ignoredOffset + 2]);
 
-            Quaternion quat = qz * qx * qy;
+            Quaternion quat = q1 * q2 * q3;
 
             motionData[node].Add(quat);
 
@@ -109,6 +112,23 @@ namespace Mocap.BVH
             }
         }
 
+        /// <summary>
+        /// returns the corresponding axis (x,y,z) for the given channel type
+        /// </summary>
+        private static Vector3D GetAxisFromChannelType(BVHChannels channel)
+        {
+            switch (channel)
+            {
+                case BVHChannels.Xrotation:
+                    return new Vector3D(1, 0, 0);
+                case BVHChannels.Yrotation:
+                    return new Vector3D(0, 1, 0);
+                case BVHChannels.Zrotation:
+                    return new Vector3D(0, 0, 1);
+                default:
+                    throw new InvalidOperationException($"Channel type {channel} not supported");
+            }
+        }
 
         /// <summary>
         /// reads a bvh node from a given bvh reader
@@ -217,6 +237,91 @@ namespace Mocap.BVH
 
 
             return new Vector3D(x, y, z);
+        }
+
+        /// <summary>
+        /// Writes a BVH motion data file
+        /// </summary>
+        public static void WriteBvh(string file, BVHNode root, BVHMotionData motionData)
+        {
+            using (var writer = new StreamWriter(file))
+            {
+                writer.WriteLine("HIERARCHY");
+                WriteBvhNode(root, writer, 0);
+                writer.WriteLine("MOTION");
+
+                int numFrames = motionData.Data.First().Value.Count;
+                writer.WriteLine($"Frames: {numFrames}");
+                writer.WriteLine($"Frame Time: {motionData.FrameTime}");
+                for (int i = 0; i < numFrames; i++)
+                {
+                    foreach (var node in motionData.Data.Keys)
+                    {
+                        double yaw, pitch, roll;
+                        motionData.Data[node][i].ToYawPitchRoll(out yaw, out pitch, out roll);
+
+                        writer.Write($"{yaw * 180 / Math.PI} {pitch * 180 / Math.PI} {roll * 180 / Math.PI} ");
+                    }
+                    writer.WriteLine();
+                }
+            }
+        }
+
+        /// <summary>
+        /// recursively write a BVH node an all its children to a BVH motion data file
+        /// </summary>
+        private static void WriteBvhNode(BVHNode node, StreamWriter writer, int level)
+        {
+            // name and type
+            for (int i = 0; i < level - 1; ++i)
+                writer.Write("\t");
+            writer.WriteLine($"{GetTypeString(node.Type)} {node.Name}");
+
+            // open curly bracket
+            for (int i = 0; i < level - 1; ++i)
+                writer.Write("\t");
+            writer.WriteLine("{");
+
+            // node offset
+            for (int i = 0; i < level; ++i)
+                writer.Write("\t");
+            writer.WriteLine($"OFFSET {node.Offset.X} {node.Offset.Y} {node.Offset.Z}");
+
+            if (node.Type != BVHNodeTypes.EndSite)
+            {
+                // defined channels
+                for (int i = 0; i < level; ++i)
+                    writer.Write("\t");
+                writer.Write($"CHANNELS {node.Channels.Length} ");
+
+                foreach (var chan in node.Channels)
+                    writer.Write(chan.ToString() + " ");
+                writer.Write(Environment.NewLine);
+
+                // child nodes
+                foreach (var child in node.Children)
+                    WriteBvhNode(child, writer, level + 1);
+            }
+
+            // closing curly bracket
+            for (int i = 0; i < level - 1; ++i)
+                writer.Write("\t");
+            writer.WriteLine("}");
+        }
+
+        private static string GetTypeString(BVHNodeTypes type)
+        {
+            switch (type)
+            {
+                case BVHNodeTypes.Root:
+                    return "ROOT";
+                case BVHNodeTypes.Joint:
+                    return "JOINT";
+                case BVHNodeTypes.EndSite:
+                    return "End Site";
+                default:
+                    throw new InvalidOperationException("Invalid node type");
+            }
         }
     }
 }
