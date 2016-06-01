@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
 using HelixToolkit.Wpf;
+using Mocap.View;
 
 namespace Mocap
 {
@@ -77,6 +78,11 @@ namespace Mocap
             {
                 ViewModel.SaveBVHFileCommand.Execute(fileDialog.FileName);
             }
+        }
+
+        private void OnAboutClick(object sender, RoutedEventArgs e)
+        {
+            new About().Show();
         }
     }
 }

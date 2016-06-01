@@ -6,7 +6,9 @@
     <DataTemplate DataType="{x:Type vm:BoneVM}">
       <view:BoneView />
     </DataTemplate>
+
     <vm:AppVM x:Key="AppVM" />
+
     <BitmapImage x:Key="SettingsIcon" UriSource="Icons/settings.png" />
     <BitmapImage x:Key="PlusIcon" UriSource="Icons/plus.png" />
     <BitmapImage x:Key="RemoveIcon" UriSource="Icons/delete.png" />
@@ -21,7 +23,10 @@
     <BitmapImage x:Key="UpIcon" UriSource="Icons/up.png" />
     <BitmapImage x:Key="RotateIcon" UriSource="Icons/rotate.png" />
     <BitmapImage x:Key="TrashIcon" UriSource="Icons/trash.png" />
+    <BitmapImage x:Key="ChartIcon" UriSource="Icons/chart.png" />
+      
     <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+
     <Style TargetType="Button" x:Key="BaseButtonStyle">
       <Setter Property="Background" Value="LightGray" />
       <Setter Property="BorderThickness" Value="0" />

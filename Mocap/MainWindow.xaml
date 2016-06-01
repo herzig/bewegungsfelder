@@ -19,6 +19,9 @@
                 <Separator/>
                 <MenuItem Header="Exit" Click="OnExitClick"/>
             </MenuItem>
+            <MenuItem Header="_Help">
+               <MenuItem Header="_About"  Click="OnAboutClick"/>
+            </MenuItem>
         </Menu>
         <Grid>
             <!-- Left/Right Grid-->

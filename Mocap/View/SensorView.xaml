@@ -30,11 +30,12 @@
             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Model.SourceIp}" />
             <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Model.Id}" />
 
-
             <TextBlock Grid.Row="2" Grid.Column="0">Values:</TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Model.Count}" />
 
-            <Button Grid.Row="2" Grid.Column="2" Click="OnDetailsViewButtonClick">D</Button>
+            <Button Grid.Row="2" Grid.Column="2" Click="OnDetailsViewButtonClick">
+                <Image Source="{StaticResource ChartIcon}" />
+            </Button>
         </Grid>
         <Viewport3D Grid.Column="1">
             <Viewport3D.Camera>
