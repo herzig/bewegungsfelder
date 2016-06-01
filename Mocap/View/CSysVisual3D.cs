@@ -1,4 +1,10 @@
-﻿using HelixToolkit.Wpf;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+using HelixToolkit.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Linq;

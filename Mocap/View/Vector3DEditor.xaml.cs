@@ -23,8 +23,8 @@ namespace Mocap.View
     public partial class Vector3DEditor : UserControl
     {
         public static readonly DependencyProperty VectorProperty =
-            DependencyProperty.Register(nameof(Vector), typeof(Vector3D), typeof(Vector3DEditor), new FrameworkPropertyMetadata(new Vector3D(), OnVectorPropertyChanged
-                ));
+            DependencyProperty.Register(nameof(Vector), typeof(Vector3D), typeof(Vector3DEditor), 
+                new FrameworkPropertyMetadata(new Vector3D(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnVectorPropertyChanged));
 
         public Vector3D Vector
         {
@@ -45,8 +45,8 @@ namespace Mocap.View
             obj.VectorChanged?.Invoke();
         }
 
-        private void OnSetVxClick(object sender, RoutedEventArgs e) { Vector = new Vector3D(1, 0, 0); }
-        private void OnSetVyClick(object sender, RoutedEventArgs e) { Vector = new Vector3D(0, 1, 0); }
-        private void OnSetVzClick(object sender, RoutedEventArgs e) { Vector = new Vector3D(0, 0, 1); }
+        private void OnSetVxClick(object sender, RoutedEventArgs e) { SetValue(VectorProperty, new Vector3D(1, 0, 0)); }
+        private void OnSetVyClick(object sender, RoutedEventArgs e) { SetValue(VectorProperty, new Vector3D(0, 1, 0)); }
+        private void OnSetVzClick(object sender, RoutedEventArgs e) { SetValue(VectorProperty, new Vector3D(0, 0, 1)); }
     }
 }

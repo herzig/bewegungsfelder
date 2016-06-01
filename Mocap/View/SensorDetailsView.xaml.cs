@@ -1,5 +1,4 @@
-﻿using LiveCharts;
-using Mocap.VM;
+﻿using Mocap.VM;
 using OxyPlot;
 using System;
 using System.Collections.Generic;

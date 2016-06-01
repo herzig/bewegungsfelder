@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,40 +17,6 @@ namespace Mocap.Core
     {
         private Quaternion jointRotation = Quaternion.Identity;
         private Vector3D offset = new Vector3D();
-
-        private Quaternion baseRotation = Quaternion.Identity;
-        private Vector3D baseOffset = new Vector3D();
-
-        /// <summary>
-        /// combined offset and joint rotation in the base position
-        /// </summary>>
-        public Matrix3D BaseLocalTransform { get; private set; }
-
-        /// <summary>
-        /// local joint rotation in the base position
-        /// </summary>
-        public Quaternion BaseJointRotation
-        {
-            get { return baseRotation; }
-            set
-            {
-                baseRotation = value;
-                UpdateLocalTransform();
-            }
-        }
-
-        /// <summary>
-        /// offset to the parent joint in the base position
-        /// </summary>
-        public Vector3D BaseOffset
-        {
-            get { return baseOffset; }
-            set
-            {
-                baseOffset = value;
-                UpdateLocalTransform();
-            }
-        }
 
         /// <summary>
         /// combined offset and joint rotation matrix
@@ -118,22 +90,10 @@ namespace Mocap.Core
         }
 
         /// <summary>
-        /// update the LocalTransformation matrix by combining the current offset and rotation values
-        /// </summary>
-        private void UpdateBaseTransform()
-        {
-            var mat = Matrix3D.Identity;
-            mat.Rotate(BaseJointRotation);
-            mat.Translate(BaseOffset);
-
-            BaseLocalTransform = mat;
-        }
-
-        /// <summary>
         ///  builds the combined rotation from the root bone to this bone
         /// </summary>
         /// <returns>a quaternion representing the root-to-bone transformation for this bone</returns>
-        public Quaternion GetRootRotation()
+        public Quaternion GetRootOrientation()
         {
             Quaternion quat = Quaternion.Identity;
             var current = this;

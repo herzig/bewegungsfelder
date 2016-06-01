@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -93,6 +99,7 @@ namespace Mocap.BVH
                 motionData.Add(node, new List<Quaternion>());
             }
 
+            // TODO: add support for position in Bones/check how many channels really have to be skipped
             int ignoredOffset = 0;
             if (node.Channels[0] == BVHChannels.Xposition)
                 ignoredOffset += 3;

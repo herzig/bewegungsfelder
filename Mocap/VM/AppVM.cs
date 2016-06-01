@@ -1,4 +1,11 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+
+using GalaSoft.MvvmLight.CommandWpf;
 using Mocap.BVH;
 using Mocap.Core;
 using System;
@@ -22,7 +29,8 @@ namespace Mocap.VM
         {
             Default,
             Running,
-            Calibration
+            Calibration,
+            Recording
         }
 
         private AppState state = AppState.Default;
@@ -32,10 +40,9 @@ namespace Mocap.VM
         private DispatcherTimer refreshTimer;
 
         private ObservableCollection<SensorVM> sensors;
-        private DataCollector dataCollector;
+        private Server server;
 
         private KinematicVM kinematic;
-        private KinematicVM liveKinematic;
 
         private KinematicAnimatorVM animator;
 
@@ -82,7 +89,7 @@ namespace Mocap.VM
 
         public SensorBoneMap SensorBoneMap { get; }
 
-        public KinematicVM BaseKinematic
+        public KinematicVM Kinematic
         {
             get { return kinematic; }
             set
@@ -104,29 +111,8 @@ namespace Mocap.VM
                         RootVisual3D.Children.Add(kinematic.Root.Visual);
                     }
 
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BaseKinematic)));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Kinematic)));
                 }
-            }
-        }
-
-        public KinematicVM LiveKinematic
-        {
-            get { return liveKinematic; }
-            set
-            {
-                if (liveKinematic != null)
-                {
-                    RootVisual3D.Children.Remove(liveKinematic.Root.Visual);
-                }
-
-                liveKinematic = value;
-
-                if (liveKinematic != null)
-                {
-                    RootVisual3D.Children.Add(liveKinematic.Root.Visual);
-                }
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LiveKinematic)));
             }
         }
 
@@ -179,15 +165,15 @@ namespace Mocap.VM
 
         public AppVM()
         {
-            dataCollector = new DataCollector();
-            dataCollector.SensorAdded += OnSensorAdded;
+            server = new Server();
+            server.SensorAdded += OnSensorAdded;
 
             // setup sensor-bone links
             SensorBoneMap = new SensorBoneMap();
             sensorBoneLinkVMs = new Dictionary<SensorBoneLink, SensorBoneLinkVM>();
             SensorBoneMap.LinkAdded += (link) =>
             {
-                sensorBoneLinkVMs.Add(link, new SensorBoneLinkVM(link, sensorVMs[link.Sensor], BaseKinematic.BoneVMMap[link.Bone]));
+                sensorBoneLinkVMs.Add(link, new SensorBoneLinkVM(link, sensorVMs[link.Sensor], Kinematic.BoneVMMap[link.Bone]));
                 RootVisual3D.Children.Add(sensorBoneLinkVMs[link].Visual);
             };
             SensorBoneMap.LinkRemoved += (link) =>
@@ -200,17 +186,17 @@ namespace Mocap.VM
             sensors = new ObservableCollection<SensorVM>();
             sensorVMs = new Dictionary<Sensor, SensorVM>();
             Sensors = new ReadOnlyObservableCollection<SensorVM>(sensors);
-            foreach (var item in dataCollector.Sensors.Values)
+            foreach (var item in server.Sensors.Values)
             {
                 sensors.Add(new SensorVM(item));
                 sensorVMs.Add(item, sensors.Last());
             }
 
             // setup kinematic chain
-            BaseKinematic = new KinematicVM(new Kinematic());
+            Kinematic = new KinematicVM(new KinematicStructure());
 
             // setup animator
-            Animator = new KinematicAnimatorVM(BaseKinematic, new MotionData());
+            Animator = new KinematicAnimatorVM(Kinematic, new MotionData());
 
             // setup commands
             LoadBVHFileCommand = new RelayCommand<string>(LoadBVHFile);
@@ -224,7 +210,7 @@ namespace Mocap.VM
 
             // ui update timer
             refreshTimer = new DispatcherTimer(DispatcherPriority.Background);
-            refreshTimer.Interval = TimeSpan.FromMilliseconds(20);
+            refreshTimer.Interval = TimeSpan.FromMilliseconds(30);
             refreshTimer.Start();
             refreshTimer.Tick += OnRefreshTick;
         }
@@ -244,8 +230,8 @@ namespace Mocap.VM
             Bone newRoot = BVHConverter.ToBones(bvhroot, null, bvhMotionData, newMotionData);
 
             // create & assign a new kinematic view model. BoneVMs are also created in this process.
-            BaseKinematic = new KinematicVM(new Core.Kinematic(newRoot));
-            Animator = new KinematicAnimatorVM(BaseKinematic, newMotionData);
+            Kinematic = new KinematicVM(new Core.KinematicStructure(newRoot));
+            Animator = new KinematicAnimatorVM(Kinematic, newMotionData);
         }
 
         /// <summary>
@@ -254,7 +240,7 @@ namespace Mocap.VM
         private void SaveBVHFile(string file)
         {
             BVHMotionData motionData;
-            var root = BVHConverter.ToBVHData(BaseKinematic.Root.Model, Animator.MotionData, out motionData);
+            var root = BVHConverter.ToBVHData(Kinematic.Root.Model, Animator.MotionData, out motionData);
             BVHReaderWriter.WriteBvh(file, root, motionData);
         }
 
@@ -316,7 +302,7 @@ namespace Mocap.VM
         /// </summary>
         public void StartServer()
         {
-            dataCollector.Start();
+            server.Start();
         }
 
         /// <summary>
@@ -337,10 +323,10 @@ namespace Mocap.VM
             if (State == AppState.Running)
             {
                 var orientations = SensorBoneMap.GetCalibratedSensorOrientations();
-                BaseKinematic.Model.ApplyWorldRotations(orientations);
+                Kinematic.Model.ApplyWorldRotations(orientations);
             }
 
-            BaseKinematic.Refresh();
+            Kinematic.Refresh();
         }
 
         /// <summary>
@@ -370,7 +356,7 @@ namespace Mocap.VM
         private void StopAxisCalibration()
         {
             if (State != AppState.Calibration)
-                throw new InvalidOperationException("You shall not cancel something that you've never started");
+                throw new InvalidOperationException("Thou shall not cancel something that you've never started");
 
             CalibrationBoneLink = null;
             State = AppState.Default;

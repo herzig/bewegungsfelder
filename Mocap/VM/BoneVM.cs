@@ -1,4 +1,11 @@
-﻿using HelixToolkit.Wpf;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+
+using HelixToolkit.Wpf;
 using Mocap.Core;
 using Mocap.View;
 using System;
@@ -169,10 +176,12 @@ namespace Mocap.VM
 
                 }
             }
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
             {
                 foreach (BoneVM child in e.OldItems)
                 {
+                    Model.Children.Remove(child.Model);
+
                     Visual.Children.Remove(child.Visual);
                     Visual.Children.Remove(childLinkVisualMap[child]);
                 }

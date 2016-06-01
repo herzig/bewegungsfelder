@@ -1,4 +1,11 @@
-﻿using Mocap.Core;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+
+using Mocap.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +31,7 @@ namespace Mocap.VM
         /// <summary>
         /// the underlying model for this view model
         /// </summary>
-        public Kinematic Model { get; }
+        public KinematicStructure Model { get; }
 
         /// <summary>
         /// roots collection is always just a single entry. Used to be able to bind to collection views
@@ -90,7 +97,7 @@ namespace Mocap.VM
         /// </summary>
         /// <param name="model">the underlying model</param>
         /// <param name="sensors">collection of registered sensors.</param>
-        public KinematicVM(Kinematic model)
+        public KinematicVM(KinematicStructure model)
         {
             Model = model;
 

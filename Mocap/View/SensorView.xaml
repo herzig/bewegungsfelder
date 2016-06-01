@@ -6,16 +6,17 @@
              xmlns:helix="http://helix-toolkit.org/wpf"
              xmlns:view="clr-namespace:Mocap.View"
              mc:Ignorable="d" 
-             d:DesignHeight="80" d:DesignWidth="200" Height="Auto">
+             d:DesignHeight="50" d:DesignWidth="200" Height="Auto">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="40"/>
         </Grid.ColumnDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -25,16 +26,15 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" Grid.Column="0">Id:</TextBlock>
-            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Model.Id}" />
+            <TextBlock Grid.Row="0" Grid.Column="0">Source:</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Model.SourceIp}" />
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Model.Id}" />
 
-            <TextBlock Grid.Row="1" Grid.Column="0">Source:</TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Model.SourceIp}" />
 
             <TextBlock Grid.Row="2" Grid.Column="0">Values:</TextBlock>
             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Model.Count}" />
 
-            <Button Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0" Click="OnDetailsViewButtonClick">Details</Button>
+            <Button Grid.Row="2" Grid.Column="2" Click="OnDetailsViewButtonClick">D</Button>
         </Grid>
         <Viewport3D Grid.Column="1">
             <Viewport3D.Camera>

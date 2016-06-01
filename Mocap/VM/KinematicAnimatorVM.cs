@@ -1,4 +1,11 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+
+using GalaSoft.MvvmLight.CommandWpf;
 using Mocap.Core;
 using System;
 using System.Collections.Generic;
@@ -82,6 +89,8 @@ namespace Mocap.VM
 
         public ICommand RecordCommand { get; }
 
+        public ICommand ClearCommand { get; }
+
         public State AnimatorState
         {
             get { return animatorState; }
@@ -109,12 +118,14 @@ namespace Mocap.VM
             PlayCommand = new RelayCommand(Play, CanPlay);
             PauseCommand = new RelayCommand(Pause, CanPause);
             RecordCommand = new RelayCommand(Record, CanRecord);
+            ClearCommand = new RelayCommand(ClearData, CanClear);
 
             timer = new DispatcherTimer(DispatcherPriority.Normal);
             TimeSpan interval = TimeSpan.FromSeconds(1.0 / motionData.FPS);
             timer.Interval = interval;
             timer.Tick += OnTimerTick;
         }
+
 
         private void PlaybackPositionChanged()
         {
@@ -195,6 +206,18 @@ namespace Mocap.VM
                 AnimatorState = State.Recording;
                 timer.Start();
             }
+        }
+
+
+        private void ClearData()
+        {
+            MotionData.Data.Clear();
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Length)));
+        }
+
+        private bool CanClear()
+        {
+            return AnimatorState == State.Paused;
         }
 
         private bool CanRecord()

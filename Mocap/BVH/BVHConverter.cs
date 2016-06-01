@@ -1,4 +1,10 @@
-﻿using Mocap.Core;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+using Mocap.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;

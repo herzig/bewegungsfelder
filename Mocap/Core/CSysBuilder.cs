@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
 
-namespace Mocap.VM
+namespace Mocap.Core
 {
     public class CSysBuilder : INotifyPropertyChanged
     {
@@ -103,12 +109,14 @@ namespace Mocap.VM
 
         public CSysBuilder() { }
 
-        public void CalulateVectors()
+        public void CalculateVectors()
         {
             int[] userDefIndices = Enumerable.Range(0, 3).Where(i => userDefined[i]).ToArray();
 
             if (userDefIndices.Length > 2)
                 throw new InvalidOperationException("Can't define all three vectors");
+            else if (userDefIndices.Length < 2)
+                throw new InvalidOperationException("Need at least two vectors defined");
 
             int calcIndex = 3 - (userDefIndices[0] + userDefIndices[1]);
 
@@ -122,11 +130,11 @@ namespace Mocap.VM
             {
                 // automatically correct second vector if within tolerance
                 var tmp = Vector3D.CrossProduct(a, b);
-                b = Vector3D.CrossProduct(a, tmp);
+                b = Vector3D.CrossProduct(a, tmp).Normalized();
                 vectors[userDefIndices[1]] = b;
 
                 // calculate third vector
-                vectors[calcIndex] = Vector3D.CrossProduct(a, b);
+                vectors[calcIndex] = Vector3D.CrossProduct(a, b).Normalized();
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Row1)));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Row2)));
@@ -136,6 +144,15 @@ namespace Mocap.VM
             {
                 throw new InvalidOperationException("Vectors have to be orthogonal");
             }
+        }
+
+        public Matrix3D GetMatrix()
+        {
+            return new Matrix3D(
+                Row1.X, Row2.X, Row3.Z, 0,
+                Row1.Y, Row2.Y, Row3.Y, 0,
+                Row1.Z, Row2.Z, Row3.Z, 0,
+                0, 0, 0, 1 );
         }
     }
 }

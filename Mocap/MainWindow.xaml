@@ -8,7 +8,7 @@
         xmlns:helix="http://helix-toolkit.org/wpf"
         xmlns:wpftoolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800"
+        Title="Bewegungsfelder" Height="600" Width="800"
         DataContext="{StaticResource AppVM}">
     <DockPanel LastChildFill="True">
         <!-- Main Panel -->
@@ -55,7 +55,7 @@
                         <Separator DockPanel.Dock="Top"/>
 
                         <Expander Header="Kinematic Structure" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
-                            <local:KinematicEditor DataContext="{Binding BaseKinematic}" MinHeight="90"/>
+                            <local:KinematicEditor DataContext="{Binding Kinematic}" MinHeight="90"/>
                         </Expander>
                     </DockPanel>
                 </ScrollViewer>
@@ -76,7 +76,7 @@
                     </wpftoolkit:DropDownButton>
                 </StackPanel>
 
-                <local:CalibrationAxesSelectorView x:Name="calibrationAxisVisual" DockPanel.Dock="Top" SensorBoneLink="{Binding CalibrationBoneLink}"
+                <local:SensorCalibrationView x:Name="calibrationAxisVisual" DockPanel.Dock="Top" SensorBoneLink="{Binding CalibrationBoneLink}"
                                                    Visibility="{Binding IsInCalibrationState, Converter={StaticResource BoolToVisConverter}}"/>
 
                 <local:PlayerView DockPanel.Dock="Bottom" DataContext="{Binding Animator}"/>

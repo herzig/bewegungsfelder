@@ -7,12 +7,12 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Mocap")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Bewegungsfelder")]
+[assembly: AssemblyDescription("Inertial Motion Capture")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Mocap")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCompany("Ivo Herzig")]
+[assembly: AssemblyProduct("Bewegungsfelder")]
+[assembly: AssemblyCopyright("Copyright ©  2016 Ivo Herzig")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -37,6 +37,9 @@
                     </Style>
                 </Button.Style>
             </Button>
+            <Button DockPanel.Dock="Left" x:Name="bu_clear" Command="{Binding ClearCommand}">
+                <Image Source="{StaticResource TrashIcon}"/>
+            </Button>
             <TextBox DockPanel.Dock="Right" Width="50" Text="{Binding FPS, StringFormat=N2}" />
             <TextBlock VerticalAlignment="Center" DockPanel.Dock="Right" Text="FPS:" />
         </DockPanel>

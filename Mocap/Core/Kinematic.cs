@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,11 +13,11 @@ using System.Windows.Media.Media3D;
 
 namespace Mocap.Core
 {
-    public class Kinematic
+    public class KinematicStructure
     {
         public Bone Root { get; }
 
-        public Kinematic(Bone root = null)
+        public KinematicStructure(Bone root = null)
         {
             if (root == null)
                 Root = new Bone(parent: null) { Name = "Root" };

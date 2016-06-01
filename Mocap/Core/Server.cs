@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+Part of Bewegungsfelder 
+(C) 2016 Ivo Herzig
+
+[[LICENSE]]
+*/
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +17,7 @@ using System.Windows.Threading;
 
 namespace Mocap.Core
 {
-    public class DataCollector
+    public class Server
     {
         public const int DATA_PORT = 5555;
 
