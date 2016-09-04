@@ -281,19 +281,19 @@ namespace Mocap.VM
             var bone = pair.Item1;
             var sensor = pair.Item2;
 
-            SensorBoneLink newLink = null;
             if (sensor == null)
-            { //remove existing links
+            { // means we want to remove existing links
                 SensorBoneMap.RemoveLink(bone.Model);
+                bone.SensorBoneLink = null;
             }
             else
             { //add new link
-                newLink = SensorBoneMap.CreateLink(bone.Model, sensor.Model);
-            }
+                SensorBoneLink  newLink = SensorBoneMap.CreateLink(bone.Model, sensor.Model);
 
-            if (newLink != null)
-            {
-                bone.SensorBoneLink = sensorBoneLinkVMs[newLink];
+                if (newLink != null)
+                {
+                    bone.SensorBoneLink = sensorBoneLinkVMs[newLink];
+                }
             }
         }
 

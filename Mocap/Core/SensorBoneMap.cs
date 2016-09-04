@@ -27,11 +27,19 @@ namespace Mocap.Core
         {
             if (links.ContainsKey(bone))
             {
-                var removedLink = links[bone];
-                links.Remove(bone);
-                LinkRemoved?.Invoke(removedLink);
+                var existingLink = links[bone];
+                if (existingLink.Sensor == sensor)
+                { // link already exists
+                    return null;
+                }
+                else
+                { // remove existing link
+                    links.Remove(bone);
+                    LinkRemoved?.Invoke(existingLink);
+                }
             }
 
+            // create new link
             var link = new SensorBoneLink(bone, sensor);
             links.Add(bone, link);
             LinkAdded?.Invoke(link);

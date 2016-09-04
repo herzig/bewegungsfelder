@@ -94,6 +94,15 @@ namespace Mocap
 
             return new Quaternion(qx, qy, qz, qw);
         }
+
+        public static Matrix3D Transposed(this Matrix3D m)
+        {
+            return new Matrix3D(
+                m.M11, m.M21, m.M31, m.OffsetX, 
+                m.M12, m.M22, m.M32, m.OffsetY, 
+                m.M13, m.M23, m.M33, m.OffsetZ, 
+                m.M14, m.M24, m.M34, m.M44);
+        }
     }
 
     public static class VectorExtension

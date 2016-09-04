@@ -149,9 +149,9 @@ namespace Mocap.Core
         public Matrix3D GetMatrix()
         {
             return new Matrix3D(
-                Row1.X, Row2.X, Row3.Z, 0,
-                Row1.Y, Row2.Y, Row3.Y, 0,
-                Row1.Z, Row2.Z, Row3.Z, 0,
+                Row1.X, Row1.Y, Row1.Z, 0,
+                Row2.X, Row2.Y, Row2.Z, 0,
+                Row3.X, Row3.Y, Row3.Z, 0,
                 0, 0, 0, 1 );
         }
     }

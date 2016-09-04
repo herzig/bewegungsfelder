@@ -30,8 +30,8 @@
             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Model.SourceIp}" />
             <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Model.Id}" />
 
-            <TextBlock Grid.Row="2" Grid.Column="0">Values:</TextBlock>
-            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Model.Count}" />
+            <TextBlock Grid.Row="2" Grid.Column="0">Latest Arrival:</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Model.LastValue.ArrivalTime, StringFormat=HH:mm:ss.fff}" />
 
             <Button Grid.Row="2" Grid.Column="2" Click="OnDetailsViewButtonClick">
                 <Image Source="{StaticResource ChartIcon}" />

@@ -60,7 +60,7 @@ namespace Mocap.VM
         /// </summary>
         public void Refresh()
         {
-            SampleRate = Model.GetSampleRate(5);
+            //SampleRate = Model.GetSampleRate(5);
 
             // empty property changed event is interpreted as a change on all properties
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(null));

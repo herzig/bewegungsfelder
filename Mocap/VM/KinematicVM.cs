@@ -133,8 +133,8 @@ namespace Mocap.VM
 
             var model = new Bone(parent: SelectedItem.Model, offset: new Vector3D(1, 0, 0));
             var vm = new BoneVM(model, parent: SelectedItem);
-            SelectedItem.Children.Add(vm);
             SelectedItem.Model.Children.Add(model);
+            SelectedItem.Children.Add(vm);
             BoneVMMap.Add(model, vm);
         }
 
@@ -165,7 +165,7 @@ namespace Mocap.VM
         /// </summary>
         private bool CanRemoveBone()
         {
-            return SelectedItem != null && SelectedItem.Parent != null;
+            return SelectedItem != null && SelectedItem.Parent != null && !SelectedItem.IsLinkedToSensor;
         }
 
         /// <summary>

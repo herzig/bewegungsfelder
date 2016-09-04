@@ -85,6 +85,8 @@ namespace Mocap.VM
             }
         }
 
+        public bool IsEndSite { get { return Model.IsEndSite; } }
+
         /// <summary>
         /// the offset to the parent node.
         /// </summary>
@@ -186,6 +188,8 @@ namespace Mocap.VM
                     Visual.Children.Remove(childLinkVisualMap[child]);
                 }
             }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEndSite)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
         }
 
         private void OnDisplaySettingsPropertyChanged(object sender, PropertyChangedEventArgs e)

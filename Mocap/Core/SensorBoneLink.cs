@@ -61,7 +61,7 @@ namespace Mocap.Core
 
         public Quaternion GetCalibratedOrientation()
         {
-            return (BaseOrientation * CalibrationRotation) * Sensor.LastValue.Orientation;
+            return BaseOrientation * Sensor.LastValue.Orientation * CalibrationRotation;
         }
 
         public Vector3D GetCalibratedAcceleration()
@@ -74,20 +74,20 @@ namespace Mocap.Core
 
         public void SetBaseOrientation()
         {
-            BaseOrientation = (CalibrationRotation * Sensor.LastValue.Orientation).Inverted();
+            BaseOrientation = (Sensor.LastValue.Orientation * CalibrationRotation).Inverted();
         }
 
         public void CalculateCalibrationTransform()
         {
             Matrix3D source = SensorFrameDefinition.GetMatrix();
+            source = source.Transposed();
             Matrix3D target = new Matrix3D(
                 1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1);
 
-            source.Invert();
-            CalibrationTransform = target * source;
+            CalibrationTransform = target * source.Transposed();
         }
 
     }

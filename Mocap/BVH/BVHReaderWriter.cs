@@ -260,10 +260,15 @@ namespace Mocap.BVH
                 int numFrames = motionData.Data.First().Value.Count;
                 writer.WriteLine($"Frames: {numFrames}");
                 writer.WriteLine($"Frame Time: {motionData.FrameTime}");
+
+                // write frame data line by line
                 for (int i = 0; i < numFrames; i++)
                 {
                     foreach (var node in motionData.Data.Keys)
                     {
+                        if (node.Type == BVHNodeTypes.EndSite)
+                            continue;
+
                         double yaw, pitch, roll;
                         motionData.Data[node][i].ToYawPitchRoll(out yaw, out pitch, out roll);
 
@@ -275,14 +280,18 @@ namespace Mocap.BVH
         }
 
         /// <summary>
-        /// recursively write a BVH node an all its children to a BVH motion data file
+        /// recursively write a BVH node an all its children to .Type == BVHNodeTypes.EndSitedata file
         /// </summary>
         private static void WriteBvhNode(BVHNode node, StreamWriter writer, int level)
         {
             // name and type
             for (int i = 0; i < level - 1; ++i)
                 writer.Write("\t");
-            writer.WriteLine($"{GetTypeString(node.Type)} {node.Name}");
+
+            if (node.Type == BVHNodeTypes.EndSite) // end sites have no name
+                writer.WriteLine($"{GetTypeString(node.Type)}");
+            else
+                writer.WriteLine($"{GetTypeString(node.Type)} {node.Name}");
 
             // open curly bracket
             for (int i = 0; i < level - 1; ++i)

@@ -18,6 +18,8 @@ namespace Mocap.Core
         private Quaternion jointRotation = Quaternion.Identity;
         private Vector3D offset = new Vector3D();
 
+        private string name;
+
         /// <summary>
         /// combined offset and joint rotation matrix
         /// </summary>
@@ -52,7 +54,22 @@ namespace Mocap.Core
         /// <summary>
         /// a name identifiying this bone
         /// </summary>
-        public string Name { get; set; }
+        public string Name
+        {
+            get
+            {
+                if (IsEndSite)
+                    return "End Site";
+                else
+                    return name;
+            }
+            set { name = value; }
+        }
+
+        /// <summary>
+        /// this node is at the end of the kinematic chain. there are no children.
+        /// </summary>
+        public bool IsEndSite { get { return Children.Count == 0; } }
 
         /// <summary>
         /// the parent joint. if null this is a root bone
@@ -103,7 +120,7 @@ namespace Mocap.Core
                 current = current.Parent;
             } while (current != null);
 
-            return quat; 
+            return quat;
         }
 
         /// <summary>

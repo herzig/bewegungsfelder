@@ -69,7 +69,8 @@ namespace Mocap.BVH
             }
 
             // populate motion data
-            if (result.Type != BVHNodeTypes.EndSite)
+            if (result.Type != BVHNodeTypes.EndSite && sourceMotionData.Count > 0
+                && sourceMotionData.ContainsKey(bone))
                 motionData.Add(result, sourceMotionData[bone]);
 
             // add child nodes

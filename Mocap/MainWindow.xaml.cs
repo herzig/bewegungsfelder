@@ -82,7 +82,7 @@ namespace Mocap
 
         private void OnAboutClick(object sender, RoutedEventArgs e)
         {
-            new About().Show();
+            new About().ShowDialog();
         }
     }
 }

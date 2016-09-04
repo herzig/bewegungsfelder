@@ -90,6 +90,7 @@ namespace Mocap.View
         {
             DateTime startTime = DateTime.Now;
             tb_calibmsg.Visibility = Visibility.Visible;
+            tb_calibmsg.Text = "Accelerate in selected direction";
 
             calibrationCompletedAction = () =>
             {
@@ -102,6 +103,7 @@ namespace Mocap.View
         {
             DateTime startTime = DateTime.Now;
             tb_calibmsg.Visibility = Visibility.Visible;
+            tb_calibmsg.Text = "Rotate around selected axis";
 
             calibrationCompletedAction = () =>
             {
@@ -114,6 +116,7 @@ namespace Mocap.View
         {
             DateTime startTime = DateTime.Now;
             tb_calibmsg.Visibility = Visibility.Visible;
+            tb_calibmsg.Text = "Accelerate in selected direction";
 
             calibrationCompletedAction = () =>
             {
@@ -126,6 +129,7 @@ namespace Mocap.View
         {
             DateTime startTime = DateTime.Now;
             tb_calibmsg.Visibility = Visibility.Visible;
+            tb_calibmsg.Text = "Rotate around selected axis";
 
             calibrationCompletedAction = () =>
             {
@@ -138,6 +142,7 @@ namespace Mocap.View
         {
             DateTime startTime = DateTime.Now;
             tb_calibmsg.Visibility = Visibility.Visible;
+            tb_calibmsg.Text = "Accelerate in selected direction";
 
             calibrationCompletedAction = () =>
             {
@@ -150,6 +155,7 @@ namespace Mocap.View
         {
             DateTime startTime = DateTime.Now;
             tb_calibmsg.Visibility = Visibility.Visible;
+            tb_calibmsg.Text = "Rotate around selected axis";
 
             calibrationCompletedAction = () =>
             {

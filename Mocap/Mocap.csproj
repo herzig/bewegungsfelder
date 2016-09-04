@@ -105,9 +105,13 @@
     <Compile Include="Core\CSysBuilder.cs" />
     <Compile Include="Core\SensorBoneLink.cs" />
     <Compile Include="Utilities\ColorExtension.cs" />
+    <Compile Include="Utilities\RingBuffer.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\QuaternionExtensions.cs" />
     <Compile Include="Core\SensorBoneMap.cs" />
+    <Compile Include="View\About.xaml.cs">
+      <DependentUpon>About.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\BoneView.xaml.cs">
       <DependentUpon>BoneView.xaml</DependentUpon>
     </Compile>
@@ -166,6 +170,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\About.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\BoneView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -274,6 +282,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\trash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\chart.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
