@@ -1,0 +1,10 @@
+*.swp
+*~
+.metadata
+RemoteSystemsTempFiles/
+esp8266_i2c_scan/build/
+esp8266_i2c_scan/firmware/
+esp8266_i2c_scan/.settings/
+esp8266_mpu6050/build/
+esp8266_mpu6050/firmware/
+esp8266_mpu6050/.settings/
