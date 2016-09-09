@@ -1,0 +1,5 @@
+D:\Dropbox\Diplom\Software\SensorSimulator\bin\Release\SensorSimulator.exe.config
+D:\Dropbox\Diplom\Software\SensorSimulator\bin\Release\SensorSimulator.exe
+D:\Dropbox\Diplom\Software\SensorSimulator\bin\Release\SensorSimulator.pdb
+D:\Dropbox\Diplom\Software\SensorSimulator\obj\Release\SensorSimulator.exe
+D:\Dropbox\Diplom\Software\SensorSimulator\obj\Release\SensorSimulator.pdb

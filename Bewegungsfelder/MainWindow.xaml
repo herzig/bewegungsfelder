@@ -1,0 +1,94 @@
+﻿<Window x:Class="Bewegungsfelder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Bewegungsfelder.View"
+        xmlns:vm="clr-namespace:Bewegungsfelder.VM"
+        xmlns:helix="http://helix-toolkit.org/wpf"
+        xmlns:wpftoolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="Bewegungsfelder" Height="600" Width="800"
+        DataContext="{StaticResource AppVM}">
+    <DockPanel LastChildFill="True">
+        <!-- Main Panel -->
+        <Menu DockPanel.Dock="Top" IsMainMenu="True" Height="24">
+            <MenuItem Header="_File">
+                <MenuItem Header="Load _BVH" Click="OnLoadBVHClick"/>
+                <MenuItem Header="_Save BVH" Click="OnSaveBVHClick"/>
+                <Separator/>
+                <MenuItem Header="Exit" Click="OnExitClick"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+               <MenuItem Header="_About"  Click="OnAboutClick"/>
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <!-- Left/Right Grid-->
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left/Tools Columns -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <!-- Sensors, Kinematic etc... -->
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Selected Item Details -->
+                    <RowDefinition Height="200"/>
+                </Grid.RowDefinitions>
+                <!-- Scoll viewer contains sensor list, kinematic tree view etc.)-->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0">
+                    <DockPanel LastChildFill="True">
+                        <Expander Header="Mocap Control" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                            <StackPanel>
+                                <Button Command="{Binding StartCaptureCommand}">Start Capture</Button>
+                                <Button Command="{Binding StopCaptureCommand}">Stop Capture</Button>
+                                <Separator/>
+                                <Button Command="{Binding SetBaseRotationCommand}">Set Base Rotations</Button>
+                            </StackPanel>
+                        </Expander>
+                        <Separator DockPanel.Dock="Top"/>
+
+                        <Expander Header="Sensors" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                            <ListBox BorderThickness="0" ItemsSource="{Binding Sensors}" MinHeight="90"/>
+                        </Expander>
+                        <Separator DockPanel.Dock="Top"/>
+
+                        <Expander Header="Kinematic Structure" DockPanel.Dock="Top" ExpandDirection="Down" IsExpanded="True">
+                            <local:KinematicEditor DataContext="{Binding Kinematic}" MinHeight="90"/>
+                        </Expander>
+                    </DockPanel>
+                </ScrollViewer>
+
+                <GridSplitter  Grid.Row="1" Height="5" HorizontalAlignment="Stretch" ResizeDirection="Rows"/>
+                <Expander Grid.Row="2" Header="Details" ExpandDirection="Down" IsExpanded="True" Content="{Binding DetailsItem}"/>
+            </Grid>
+
+            <GridSplitter Width="5" ResizeBehavior="CurrentAndNext"/>
+            <!-- Main content view -->
+            <DockPanel Grid.Column="1" LastChildFill="True">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Height="26">
+                    <wpftoolkit:DropDownButton HorizontalAlignment="Right">
+                        <wpftoolkit:DropDownButton.DropDownContent>
+                            <local:DisplaySettingsView MinWidth="120" MinHeight="100"/>
+                        </wpftoolkit:DropDownButton.DropDownContent>
+                        <Image Source="{StaticResource SettingsIcon}"/>
+                    </wpftoolkit:DropDownButton>
+                </StackPanel>
+
+                <local:SensorCalibrationView x:Name="calibrationAxisVisual" DockPanel.Dock="Top" SensorBoneLink="{Binding CalibrationBoneLink}"
+                                                   Visibility="{Binding IsInCalibrationState, Converter={StaticResource BoolToVisConverter}}"/>
+
+                <local:PlayerView DockPanel.Dock="Bottom" DataContext="{Binding Animator}"/>
+
+                <helix:HelixViewport3D x:Name="viewport"
+                               CameraRotationMode="Trackball" RotateAroundMouseDownPoint="True">
+                    <helix:DefaultLights></helix:DefaultLights>
+                </helix:HelixViewport3D>
+            </DockPanel>
+        </Grid>
+    </DockPanel>
+</Window>

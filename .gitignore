@@ -1,9 +1,7 @@
 .vs
-Mocap/bin
-Mocap/obj
-Teapot/bin
-Teapot/obj
-SensorSimulator/bin
-SensorSimulator/obj
+Bewegungsfelder/bin
+Bewegungsfelder/obj
+Bewegungsfelder.SensorSimulator/bin
+Bewegungsfelder.SensorSimulator/obj
 packages
 

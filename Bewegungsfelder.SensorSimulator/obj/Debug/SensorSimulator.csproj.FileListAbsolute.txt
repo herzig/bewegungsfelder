@@ -1,0 +1,6 @@
+D:\Dropbox\Diplom\Software\SensorSimulator\bin\Debug\SensorSimulator.exe.config
+D:\Dropbox\Diplom\Software\SensorSimulator\bin\Debug\SensorSimulator.exe
+D:\Dropbox\Diplom\Software\SensorSimulator\bin\Debug\SensorSimulator.pdb
+D:\Dropbox\Diplom\Software\SensorSimulator\obj\Debug\SensorSimulator.exe
+D:\Dropbox\Diplom\Software\SensorSimulator\obj\Debug\SensorSimulator.pdb
+D:\Dropbox\Diplom\Software\SensorSimulator\obj\Debug\SensorSimulator.csprojResolveAssemblyReference.cache

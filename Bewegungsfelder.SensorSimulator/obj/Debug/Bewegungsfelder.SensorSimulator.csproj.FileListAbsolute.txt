@@ -1,0 +1,6 @@
+D:\Dropbox\Diplom\Software\SensorSimulator\bin\Debug\Bewegungsfelder.SensorSimulator.exe.config
+D:\Dropbox\Diplom\Software\SensorSimulator\bin\Debug\Bewegungsfelder.SensorSimulator.exe
+D:\Dropbox\Diplom\Software\SensorSimulator\bin\Debug\Bewegungsfelder.SensorSimulator.pdb
+D:\Dropbox\Diplom\Software\SensorSimulator\obj\Debug\Bewegungsfelder.SensorSimulator.csprojResolveAssemblyReference.cache
+D:\Dropbox\Diplom\Software\SensorSimulator\obj\Debug\Bewegungsfelder.SensorSimulator.exe
+D:\Dropbox\Diplom\Software\SensorSimulator\obj\Debug\Bewegungsfelder.SensorSimulator.pdb

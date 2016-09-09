@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bewegungsfelder", "Mocap\Bewegungsfelder.csproj", "{93FDF0F1-B94B-4A13-8D9B-169B969C46EB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bewegungsfelder", "Bewegungsfelder\Bewegungsfelder.csproj", "{93FDF0F1-B94B-4A13-8D9B-169B969C46EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bewegungsfelder.SensorSimulator", "SensorSimulator\Bewegungsfelder.SensorSimulator.csproj", "{B3F40F1E-3899-4786-A536-F16D6447EB6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bewegungsfelder.SensorSimulator", "Bewegungsfelder.SensorSimulator\Bewegungsfelder.SensorSimulator.csproj", "{B3F40F1E-3899-4786-A536-F16D6447EB6A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
