@@ -33,11 +33,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
+using System.Diagnostics;
+using System.Web.Http.SelfHost;
+using Fleck;
+using System.Web.Http.Routing;
+using System.Web.Http;
+using System.Net;
 
 namespace Bewegungsfelder.Core
 {
     public class Server
     {
+        // used for both udp and tcp (websocket) server.
         public const int DATA_PORT = 5555;
 
         public ConcurrentDictionary<int, Sensor> Sensors { get; } = new ConcurrentDictionary<int, Sensor>();
@@ -45,20 +52,86 @@ namespace Bewegungsfelder.Core
         // the synchronisation context that was used when the server was started.
         // used to invoke events on the main thread
         private Dispatcher startedDispatcher;
-        private Task listenerTask;
+
+        private Task udpListenerTask;
+
+        private WebSocketServer webSocketServer;
+        private HttpSelfHostServer httpServer;
 
         public event Action<Sensor> SensorAdded;
 
         public void Start()
         {
-            if (listenerTask != null)
+            if (udpListenerTask != null)
                 throw new InvalidOperationException("Task is already running");
 
+            // start udp listener
             startedDispatcher = Dispatcher.CurrentDispatcher;
-            listenerTask = ListenAsync();
+            udpListenerTask = UdpListenAsync();
+
+            // start http server 
+            var httpConfig = new HttpSelfHostConfiguration("http://0.0.0.0:8080");
+            httpConfig.MessageHandlers.Add(new StaticServeHandler());
+
+            var route = new HttpRoute("");
+            httpConfig.Routes.Add("DefaultAPI", route);
+            httpServer = new HttpSelfHostServer(httpConfig);
+            httpServer.OpenAsync().Wait();
+
+            // start websocket server
+            webSocketServer = new WebSocketServer($"ws://0.0.0.0:{DATA_PORT}");
+            webSocketServer.Start(OnWebsocketConnection);
         }
 
-        private Task ListenAsync()
+        private void OnWebsocketConnection(IWebSocketConnection socket)
+        {
+            socket.OnOpen = () => Debug.WriteLine(
+                $"Websocket client {socket.ConnectionInfo.ClientIpAddress} connected.");
+            socket.OnClose = () => Debug.WriteLine(
+                $"Websocket client {socket.ConnectionInfo.ClientIpAddress} disconnected.");
+
+            socket.OnMessage = msg =>
+            {
+                Debug.WriteLine($"Websocket msg from {socket.ConnectionInfo.ClientIpAddress}: {msg}");
+
+                var tokens = msg.Split(',');
+
+                int sensorId = Int32.Parse(tokens[0]);
+                var quat = new Quaternion();
+                var accel = new Vector3D();
+                var gyro = new Vector3D();
+
+                quat.W = float.Parse(tokens[1]);
+                quat.X = float.Parse(tokens[2]);
+                quat.Y = float.Parse(tokens[3]);
+                quat.Z = float.Parse(tokens[4]);
+                accel.X = float.Parse(tokens[5]);
+                accel.Y = float.Parse(tokens[6]);
+                accel.Z = float.Parse(tokens[7]);
+                gyro.X = float.Parse(tokens[8]);
+                gyro.Y = float.Parse(tokens[9]);
+                gyro.Z = float.Parse(tokens[10]);
+                uint timestamp = (uint)ulong.Parse(tokens[11]);
+
+                var value = new SensorValue(quat, accel, gyro, DateTime.Now, timestamp);
+                var sourceAddr = IPAddress.Parse(socket.ConnectionInfo.ClientIpAddress);
+
+                // TODO: check performance. this creates a closure on every iteration?
+                var sensor = Sensors.GetOrAdd(sensorId, (id) =>
+                {
+                    var newSensor = new Sensor(sourceAddr, id);
+
+                    // raises the sensor added event on the main thread
+                    startedDispatcher.BeginInvoke(SensorAdded, newSensor);
+                    return newSensor;
+                });
+
+                sensor.PushValue(value);
+            };
+
+        }
+
+        private Task UdpListenAsync()
         {
             var task = new Task(async () =>
             {
@@ -94,7 +167,7 @@ namespace Bewegungsfelder.Core
 
                     var sourceAddr = result.RemoteEndPoint.Address;
 
-                    // TODO: check performance. this creates a closure on every iteration.
+                    // TODO: check performance. this creates a closure on every iteration?
                     var sensor = Sensors.GetOrAdd(sensorId, (id) =>
                     {
                         var newSensor = new Sensor(sourceAddr, id);

@@ -11,7 +11,20 @@ Bewegungsfelder is a mobile & customizable inertial motion capture system for sk
 * BVH export & import.
 * UDP Server accepts incoming sensor values.
 
-## ESP8266 & MPU6050
+### Future
+* Smartphones as sensors (poc done).
+* Improve timing issues/add proper interpolation.
+* Support intermediate joint/smoothin using IK.
+* Docs.
+
+#### Smartphone Sensors
+Prototype using websockets in develop branch:
+1. Start Bewegungsfelder.exe
+2. Make sure Smartphone can connect to your PC (i.e. same wifi network)
+2. On Smartphone open http://[your-local-ip]:8080
+3. Mocap!
+
+#### ESP8266 & MPU6050 Sensors
 
 Sensor fusion is done on the MPU6050 by the InvenSense DMP Firmware.
 

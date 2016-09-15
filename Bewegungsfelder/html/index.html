@@ -1,0 +1,157 @@
+﻿<html>
+<head>
+
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Bewegungsfelder mobile sensor</title>
+    <style>
+        body { 
+        text-align: center; 
+        font-family: sans-serif; 
+        background-color: #EEEEEE;
+        color: #333333;
+        }
+        h1 {
+            font-size: 2.0em;
+        }
+        .big {
+            font-size: 1.5em;
+        }
+        .biginput {
+            font-size: 1.5em;
+            width: 90;
+        }
+        .med {
+            font-size: 1.2em;
+        }
+        .bottom {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sensor</h1>
+    <p class="big">
+        Id:
+        <input class="biginput" size="50" id="sensorId" type="number" value="10" />
+    </p>
+    <p id="status"></p>
+    <p class="med">α: <span id="alpha"></span></p>
+    <p class="med">β: <span id="beta"></span></p>
+    <p class="med">γ: <span id="gamma"></span></p>
+
+    <div class="bottom">
+        Bewegungsfelder mobile sensor <a href="http://github.com/herzig/bewegungsfelder">on Github</a>
+    </div>
+
+    <script src="NoSleep.js"></script>
+    <script>
+
+        var WS_PORT = 5555;
+
+        // avoid sleep on android...
+        var noSleep = new NoSleep();
+        function enableNoSleep() {
+            noSleep.enable();
+            document.removeEventListener('touchstart', enableNoSleep, false);
+        }
+        document.addEventListener('touchstart', enableNoSleep, false);
+
+        // set in deviceorientation event
+        var quat = [1, 0, 0, 0];
+        // set in devicemotion event
+        var accel = [0, 0, 0];
+        var gyro = [0, 0, 0];
+
+        var lastTimeStep = 0;
+
+        document.getElementById('sensorId').value = Math.floor(Math.random() * 200);
+
+        var connection = new WebSocket('ws://' + location.hostname + ':' + WS_PORT);
+        connection.onopen = function () {
+
+            document.getElementById("status").innerHTML = "connected to " + connection.url;
+
+            var start = new Date().getTime();
+            if (window.DeviceMotionEvent) {
+                window.addEventListener("devicemotion", function (event) {
+
+                    accel[0] = event.accelerationIncludingGravity.x || 0;
+                    accel[1] = event.accelerationIncludingGravity.y || 0;
+                    accel[2] = event.accelerationIncludingGravity.z || 0;
+                    gyro[0] = event.rotationRate.alpha || 0;
+                    gyro[1] = event.rotationRate.beta || 0;
+                    gyro[2] = event.rotationRate.gamma || 0;
+
+                }, true);
+            } else {
+                document.getElementById('status').innerText = "Sorry, your browser doesn't support Device Motion";
+            }
+
+            if (window.DeviceOrientationEvent) {
+
+                var start = new Date().getTime();
+                window.addEventListener("deviceorientation", function (event) {
+                    quat = getQuaternion(event.alpha, event.beta, event.gamma);
+
+                    var now = new Date().getTime();
+                    var timestamp = (now - start) * 1000;
+
+                    var sensorId = Math.floor(document.getElementById('sensorId').value);
+                    connection.send(
+                        sensorId + ","
+                        + quat[0] + "," + quat[1] + "," + quat[2] + "," + quat[3] + ","
+                        + accel[0] + "," + accel[1] + "," + accel[2] + ","
+                        + gyro[0] + "," + gyro[1] + "," + gyro[2] + ","
+                        + timestamp);
+
+                    document.getElementById('alpha').innerText = Math.round(event.alpha);
+                    document.getElementById('beta').innerText = Math.round(event.beta);
+                    document.getElementById('gamma').innerText = Math.round(event.gamma);
+
+                }, true);
+
+            } else {
+                document.getElementById('status').innerText = "Sorry, your browser doesn't support Device Orientation";
+            }
+        };
+
+        connection.onerror = function (error) {
+            console.log('WebSocket Error ' + error);
+            document.getElementById('status').innerText = "WebSocket error: " + error;
+        };
+
+        connection.onclose = function (e) {
+            console.log('Disconnected');
+            document.getElementById('status').innerText = "Disconnected";
+        };
+
+        // create quaternion from device orientation euler angles
+        // see: https://w3c.github.io/deviceorientation/spec-source-orientation.html
+        function getQuaternion(alpha, beta, gamma) {
+            var _x = beta ? beta * (Math.PI / 180) : 0; // beta value
+            var _y = gamma ? gamma * (Math.PI / 180) : 0; // gamma value
+            var _z = alpha ? alpha * (Math.PI / 180) : 0; // alpha value
+
+            var cX = Math.cos(_x / 2);
+            var cY = Math.cos(_y / 2);
+            var cZ = Math.cos(_z / 2);
+            var sX = Math.sin(_x / 2);
+            var sY = Math.sin(_y / 2);
+            var sZ = Math.sin(_z / 2);
+
+            //
+            // ZXY quaternion construction.
+            //
+            var w = cX * cY * cZ - sX * sY * sZ;
+            var x = sX * cY * cZ - cX * sY * sZ;
+            var y = cX * sY * cZ + sX * cY * sZ;
+            var z = cX * cY * sZ + sX * sY * cZ;
+
+            return [w, x, y, z];
+        }
+
+    </script>
+</body>
+</html>
