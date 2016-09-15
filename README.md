@@ -1,3 +1,5 @@
+<img alt='CI Build Status' src='https://ci.appveyor.com/api/projects/status/github/herzig/bewegungsfelder?svg=true'></img>
+
 # Bewegungsfelder
 Inertial Motion Capture for everyone
 
