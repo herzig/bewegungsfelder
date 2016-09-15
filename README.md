@@ -21,10 +21,10 @@ Bewegungsfelder is a mobile & customizable inertial motion capture system for sk
 
 #### Smartphone Sensors
 Prototype using websockets in develop branch:
-1. Start Bewegungsfelder.exe
-2. Make sure Smartphone can connect to your PC (i.e. same wifi network)
-2. On Smartphone open http://[your-local-ip]:8080
-3. Mocap!
+ 1. Start Bewegungsfelder.exe
+ 2. Make sure Smartphone can connect to your PC (i.e. same wifi network)
+ 3. On Smartphone open http://[your-local-ip]:8080
+ 4. Mocap!
 
 #### ESP8266 & MPU6050 Sensors
 
