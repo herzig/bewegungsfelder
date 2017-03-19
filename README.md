@@ -13,8 +13,10 @@ Bewegungsfelder is a mobile & customizable inertial motion capture system for sk
 * BVH export & import.
 * UDP Server accepts incoming sensor values.
 
+<img alt='Coordinate Systems' src='csys.png' width='300px'></img>
+
 ### Future
-* Smartphones as sensors (poc done).
+* Smartphones as sensors (POC done).
 * Improve timing issues/add proper interpolation.
 * Support intermediate joint/smoothin using IK.
 * Docs.
@@ -34,4 +36,10 @@ The ESP8266 reads values from the MPU6050 motion sensors using I2C.
 
 The official Esspressif ESP8266 non-os SDK is used.
 
+<img alt='Schematic & Wiring' src='schematic.png' width='500px'></img>
+
 <img alt='Bewegungsfelder ESP8265 and MPU6050 Hardware' src='hardware.jpg' width='500px'></img>
+
+
+
+
