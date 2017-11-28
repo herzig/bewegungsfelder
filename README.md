@@ -35,6 +35,7 @@ Sensor fusion is done on the MPU6050 by the InvenSense DMP Firmware.
 The ESP8266 reads values from the MPU6050 motion sensors using I2C.
 
 The official Esspressif ESP8266 non-os SDK is used.
+For a guide on how to setup the toolchain with Eclipse, check this out: [http://www.esp8266.com/viewtopic.php?t=820](http://www.esp8266.com/viewtopic.php?t=820) 
 
 <img alt='Schematic & Wiring' src='schematic.png' width='500px'></img>
 
