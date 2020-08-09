@@ -99,14 +99,13 @@ namespace Bewegungsfelder.Core
         public void CalculateCalibrationTransform()
         {
             Matrix3D source = SensorFrameDefinition.GetMatrix();
-            source = source.Transposed();
             Matrix3D target = new Matrix3D(
                 1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1);
 
-            CalibrationTransform = target * source.Transposed();
+            CalibrationTransform = target * source;
         }
 
     }
